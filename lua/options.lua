@@ -1,0 +1,40 @@
+vim.g.mapleader = ' '
+
+local opt = vim.opt
+local filetype = vim.o.filetype
+
+-- clipboard
+opt.clipboard:append('unnamedplus')
+
+-- text
+opt.encoding = 'utf-8'
+opt.matchpairs = { '(:)', '{:}', '[:]', '<:>' }
+
+local indent = 4
+opt.autoindent = true
+opt.expandtab = true
+opt.shiftwidth = indent
+opt.smartindent = true
+opt.tabstop = indent -- insert 4(?) spaces for a tab by default, formatter makes it eight.
+
+-- numbers
+opt.number = true
+opt.relativenumber = true
+
+-- style
+opt.cursorline = true
+opt.termguicolors = true -- enable 24-bit RGB colors
+opt.showmode = false
+opt.hlsearch = false
+
+--- utils
+opt.scrolloff = 8
+opt.wrap = true
+
+-- perfomance
+-- remember N lines in history
+opt.history = 100 -- keep 100 lines of history
+opt.redrawtime = 1500
+opt.timeoutlen = 300 -- time to wait for a mapped sequence to complete (in milliseconds)
+opt.ttimeoutlen = 10
+opt.updatetime = 100 -- signify default updatetime 4000ms is not good for async update

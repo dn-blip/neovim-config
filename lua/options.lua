@@ -1,7 +1,6 @@
 vim.g.mapleader = ' '
 
 local opt = vim.opt
-local filetype = vim.o.filetype
 
 -- clipboard
 opt.clipboard:append('unnamedplus')
@@ -15,8 +14,7 @@ opt.autoindent = true
 opt.expandtab = true
 opt.shiftwidth = indent
 opt.smartindent = true
-opt.tabstop = indent -- insert 4(?) spaces for a tab by default, formatter makes it eight.
-
+opt.tabstop = indent
 -- numbers
 opt.number = true
 opt.relativenumber = true

@@ -12,14 +12,9 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
---local languages = require("config.languages")
-local language_plugins = {}
-
 local spec = {
     { import = 'plugins' },
 }
-
-if #language_plugins > 0 then vim.list_extend(spec, language_plugins) end
 
 require('lazy').setup({
     spec = spec,

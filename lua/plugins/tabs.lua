@@ -1,6 +1,6 @@
 return {
     "nanozuki/tabby.nvim",
     config = function()
-        require('tabby').setup({ 'active_wins_at_tail' })
+        require('tabby').setup()
     end,
 };

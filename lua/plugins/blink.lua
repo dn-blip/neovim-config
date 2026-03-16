@@ -64,17 +64,17 @@ return {
                                 width = { fill = true },
                                 text = function(ctx)
                                     local kind_icons = {
-                                        Function = 'func', -- Lambda symbol for functions
-                                        Method = 'method', -- Lambda symbol for methods
-                                        Field = 'field', -- Lambda symbol for methods
-                                        Variable = 'var', -- Lambda symbol for methods
-                                        Property = 'property', -- Lambda symbol for methods
-                                        Keyword = 'keyword', -- Lambda symbol for methods
-                                        Struct = 'struct', -- Lambda symbol for methods
-                                        Enum = 'enum', -- Lambda symbol for methods
-                                        EnumMember = 'enum_member', -- Lambda symbol for methods
+                                        Function = 'func',
+                                        Method = 'method',
+                                        Field = 'field',
+                                        Variable = 'var',
+                                        Property = 'property',
+                                        Keyword = 'keyword',
+                                        Struct = 'struct',
+                                        Enum = 'enum',
+                                        EnumMember = 'enum_member',
                                         Snippet = 'snippet',
-                                        Text = 'txt',
+                                        Text = 'text',
                                         Module = 'module',
                                         Constructor = 'constructor',
                                     }
@@ -100,7 +100,7 @@ return {
             sources = {
                 default = { 'lsp', 'path', 'snippets', 'buffer' },
             },
-            fuzzy = { implementation = 'prefer_rust_with_warning' },
+            fuzzy = { implementation = 'lua' },
         },
         opts_extend = { 'sources.default' },
     },

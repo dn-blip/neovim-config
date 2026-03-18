@@ -14,5 +14,6 @@ return {
         require('mini.trailspace').setup()
         require('mini.pairs').setup()
         require('mini.bracketed').setup()
+        require('mini.ai').setup()
     end,
 }

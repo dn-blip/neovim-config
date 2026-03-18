@@ -1,5 +1,6 @@
 ---@module "lazy"
 ---@type LazySpec
+---@brief Handles the autocmds for TS parsers. Taken from a redddit post.
 return {
     'nvim-treesitter/nvim-treesitter',
     dependencies = {
@@ -83,10 +84,6 @@ return {
             'checkhealth',
             'lazy',
             'mason',
-            'snacks_terminal',
-            'snacks_dashboard',
-            'snacks_notif',
-            'snacks_win',
         }
 
         -- Auto-install parsers and enable highlighting on FileType

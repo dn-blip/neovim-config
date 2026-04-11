@@ -57,8 +57,7 @@ return {
         '--offset-encoding=utf-8',
     },
 
-    -- Don't load clangd on C files for learning purposes.
-    filetypes = { 'cpp', 'objc', 'objcpp', 'cuda' },
+    filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda' },
 
     root_markers = {
         '.clangd',

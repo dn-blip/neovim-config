@@ -13,13 +13,15 @@ for _, source in ipairs({
     if not ok then vim.api.nvim_err_write('Failed to load ' .. source .. '\n\n' .. fault) end
 end
 
--- Enable LSPs
+vim.cmd([[filetype plugin indent on]])
+
+-- Enable LSPs,
 vim.lsp.enable({
-    'lua_ls',
-    'zls',
     'basedpyright',
     'clangd',
     'gopls',
+    'lua_ls',
+    'zls',
 })
 
 -- Load custom configurations

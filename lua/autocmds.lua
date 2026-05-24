@@ -49,7 +49,7 @@ autocmd('LspAttach', {
             function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
             { desc = '[t]oggle inlay [h]ints' }
         )
-    end
+    end,
 })
 
 autocmd('BufWritePost', {

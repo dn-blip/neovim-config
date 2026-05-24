@@ -1,8 +1,6 @@
 return {
-    "alexpasmantier/hubbamax.nvim",
+    'alexpasmantier/hubbamax.nvim',
     lazy = false,
     priority = 1000,
-    config = function ()
-        require('hubbamax').setup({ transparent_background = true, })
-    end,
+    config = function() require('hubbamax').setup({ transparent_background = true }) end,
 }

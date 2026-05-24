@@ -13,9 +13,9 @@ for _, source in ipairs({
 end
 
 vim.o.autocomplete = true
-vim.o.complete = ".,w,b,o"
-vim.o.completeopt = "fuzzy,menuone,noselect"
-vim.o.pumborder = "rounded"
+vim.o.complete = '.,w,b,o'
+vim.o.completeopt = 'fuzzy,menuone,noselect'
+vim.o.pumborder = 'rounded'
 
 vim.cmd([[filetype plugin indent on]])
 

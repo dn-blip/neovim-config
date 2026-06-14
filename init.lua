@@ -18,6 +18,7 @@ vim.o.completeopt = 'fuzzy,menuone,noselect'
 vim.o.pumborder = 'rounded'
 
 vim.cmd([[filetype plugin indent on]])
+vim.cmd('colorscheme gruvbox')
 
 -- Enable LSPs,
 vim.lsp.enable({

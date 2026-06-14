@@ -7,7 +7,6 @@ return {
     config = function()
         require('mini.animate').setup()
         require('mini.icons').setup()
-        require('mini.statusline').setup()
         require('mini.notify').setup()
         require('mini.cmdline').setup()
         require('mini.pick').setup()

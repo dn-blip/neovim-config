@@ -3,7 +3,6 @@ return {
     filetypes = { 'lua' },
 
     root_markers = {
-        '.git',
         '.luacheckrc',
         '.luarc.json',
         '.luarc.jsonc',
@@ -11,6 +10,7 @@ return {
         'selene.toml',
         'selene.yml',
         'stylua.toml',
+        '.git',
     },
     settings = {
         Lua = {
@@ -28,5 +28,5 @@ return {
             },
         },
     },
-    single_file_support = true,
+    single_file_support = false,
 }

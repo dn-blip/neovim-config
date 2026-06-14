@@ -3,8 +3,8 @@ return {
     cmd = { 'zls' },
     settings = {
         filetypes = { 'zig', 'zir' },
-        root_markers = { 'zls.json', 'build.zig', '.git' },
-        single_file_support = true,
+        root_markers = { 'build.zig' },
+        single_file_support = false,
         workspace_required = false,
     },
 }

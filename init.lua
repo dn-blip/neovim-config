@@ -1,5 +1,14 @@
 vim.g.mapleader = ' '
 vim.g.cc = 'zig cc'
+
+vim.o.winborder = 'single'
+vim.o.pumborder = 'single'
+vim.o.complete = '.,w,b,o'
+vim.o.completeopt = 'fuzzy,menuone,noselect'
+
+vim.api.nvim_set_hl(0, 'Pmenu', { bg = 'NONE' })
+vim.api.nvim_set_hl(0, 'PmenuBorder', { bg = 'NONE', fg = '#CC6600' })
+
 -- Load default configurations and plugins
 -- it is like automatic require("something")
 for _, source in ipairs({
@@ -12,13 +21,8 @@ for _, source in ipairs({
     if not ok then vim.api.nvim_err_write('Failed to load ' .. source .. '\n\n' .. fault) end
 end
 
-vim.o.autocomplete = true
-vim.o.complete = '.,w,b,o'
-vim.o.completeopt = 'fuzzy,menuone,noselect'
-vim.o.pumborder = 'rounded'
-
 vim.cmd([[filetype plugin indent on]])
-vim.cmd('colorscheme gruvbox')
+vim.cmd('colorscheme cyberdream')
 
 -- Enable LSPs,
 vim.lsp.enable({

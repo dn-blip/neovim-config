@@ -14,5 +14,7 @@ return {
         require('mini.pairs').setup()
         require('mini.bracketed').setup()
         require('mini.ai').setup()
+        require('mini.jump2d').setup()
+        require('mini.statusline').setup()
     end,
 }

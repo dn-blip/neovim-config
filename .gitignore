@@ -1,2 +1,15 @@
+# Gitignore file
+.luarc.json
+
 # Ignore stuff
-lazy-lock.json
+nvim-pack-lock.json
+
+# tree-sitter-dl is the script by @dzfrias on GitHub I use for installing parsers
+tree-sitter-dl-lock.json
+*.scm
+
+# Library files, mainly from Treesitter
+*.so
+*.dll
+*.lib
+*.a

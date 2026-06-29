@@ -1,25 +1,46 @@
 vim.g.mapleader = ' '
 vim.g.cc = 'zig cc'
+vim.g.loaded_netrwPlugin = 1
 
 vim.o.winborder = 'single'
 vim.o.pumborder = 'single'
 vim.o.complete = '.,w,b,o'
 vim.o.completeopt = 'fuzzy,menuone,noselect'
 
-vim.api.nvim_set_hl(0, 'Pmenu', { bg = 'NONE' })
-vim.api.nvim_set_hl(0, 'PmenuBorder', { bg = 'NONE', fg = '#CC6600' })
+local gh = function(url) return 'https://github.com/' .. url end
 
--- Load default configurations and plugins
--- it is like automatic require("something")
+local cb = function(url) return 'https://codeberg.org/' .. url end
+
+vim.pack.add({
+    { src = gh('scottmckendry/cyberdream.nvim') },
+    { src = gh('nvim-mini/mini.nvim') },
+    { src = gh('mason-org/mason.nvim') },
+    { src = gh('WhoIsSethDaniel/mason-tool-installer.nvim') },
+    { src = gh('mason-org/mason-lspconfig.nvim') },
+    { src = gh('nvim-lua/plenary.nvim') },
+    { src = gh('mikavilpas/yazi.nvim') },
+    { src = gh('lukas-reineke/indent-blankline.nvim') },
+    { src = gh('DrKJeff16/wezterm-types') },
+    { src = gh('folke/lazydev.nvim') },
+    { src = gh('folke/which-key.nvim') },
+    { src = gh('antonk52/filepaths_ls.nvim') },
+    { src = gh('mfussenegger/nvim-lint') },
+    { src = gh('stevearc/conform.nvim') },
+    { src = gh('NStefan002/screenkey.nvim') },
+    { src = cb('cryptomilk/nvim-pack-ui') },
+})
+
 for _, source in ipairs({
-    'lazy_init',
     'mappings',
+    'plugin_mappings',
     'options',
     'autocmds',
 }) do
     local ok, fault = pcall(require, source)
     if not ok then vim.api.nvim_err_write('Failed to load ' .. source .. '\n\n' .. fault) end
 end
+
+require('plugins').setup()
 
 vim.cmd([[filetype plugin indent on]])
 vim.cmd('colorscheme cyberdream')
@@ -33,7 +54,3 @@ vim.lsp.enable({
     'zls',
     'filepaths_ls',
 })
-
--- Load custom configurations
-local exist, custom = pcall(require, 'custom')
-if exist and type(custom) == 'table' and custom.configs then custom.configs() end

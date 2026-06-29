@@ -17,13 +17,3 @@ map({ 'n', 'i', 'v' }, '<Up>', '<nop>', { desc = 'Get better. ' })
 map({ 'n', 'i', 'v' }, '<Down>', '<nop>', { desc = 'Get better.' })
 map({ 'n', 'i', 'v' }, '<Left>', '<nop>', { desc = 'Get better. ' })
 map({ 'n', 'i', 'v' }, '<Right>', '<nop>', { desc = 'Get better. ' })
-
--- plugin mappings
-map('n', '<leader>pf', function() require('mini.pick').builtin.files() end, { desc = '[p]ick [f]iles (mini.nvim) ' })
-
-map(
-    'n',
-    '<leader>pb',
-    function() require('mini.pick').builtin.buffers() end,
-    { desc = '[p]ick [b]uffers (mini.nvim) ' }
-)

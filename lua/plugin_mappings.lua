@@ -23,3 +23,6 @@ vim.keymap.set('n', '<leader>?', function() require('which-key').show({ global =
 vim.keymap.set({ 'n', 'v' }, '<leader>f', '<cmd>Yazi<cr>', { desc = 'Open yazi at current file' })
 vim.keymap.set({ 'n', 'v' }, '<leader>fr', '<cmd>Yazi toggle<cr>', { desc = 'Resume last yazi session' })
 vim.keymap.set({ 'n', 'v' }, '<leader>fd', '<cmd>Yazi cwd', { desc = 'Open Yazi in current directory' })
+
+vim.keymap.set({ 'n', 'x', 'o' }, 's', '<Plug>(leap)', { desc = 'leap search local' })
+vim.keymap.set('n', 'S', '<Plug>(leap-from-window)', { desc = 'leap in other window' })

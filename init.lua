@@ -19,7 +19,6 @@ vim.pack.add({
     { src = gh('mason-org/mason-lspconfig.nvim') },
     { src = gh('nvim-lua/plenary.nvim') },
     { src = gh('mikavilpas/yazi.nvim') },
-    { src = gh('lukas-reineke/indent-blankline.nvim') },
     { src = gh('DrKJeff16/wezterm-types') },
     { src = gh('folke/lazydev.nvim') },
     { src = gh('folke/which-key.nvim') },
@@ -28,6 +27,7 @@ vim.pack.add({
     { src = gh('stevearc/conform.nvim') },
     { src = gh('NStefan002/screenkey.nvim') },
     { src = cb('cryptomilk/nvim-pack-ui') },
+    { src = cb('andyg/leap.nvim') },
 })
 
 for _, source in ipairs({

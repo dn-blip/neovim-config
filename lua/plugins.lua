@@ -19,6 +19,8 @@ local setup_mason = function()
     })
 
     mti.run_on_start()
+
+    require('mason').setup()
 end
 
 local setup_colorschemes = function()
@@ -91,7 +93,7 @@ local setup_mini = function()
     require('mini.bracketed').setup()
     require('mini.ai').setup()
     require('mini.statusline').setup()
-    require('mini.jump2d').setup()
+    require('mini.indentscope').setup()
 end
 
 local setup_lazydev = function()
@@ -110,7 +112,6 @@ local setup = function()
     setup_lint_diag_format()
     setup_mini()
     setup_lazydev()
-    require('ibl').setup()
     require('which-key').setup({
         preset = 'helix',
         win = {

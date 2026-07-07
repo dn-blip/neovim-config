@@ -13,3 +13,6 @@ tree-sitter-dl-lock.json
 *.dll
 *.lib
 *.a
+
+
+ruff_cache/

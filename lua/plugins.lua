@@ -8,6 +8,8 @@ local setup_mason = function()
         'lua-language-server',
         'basedpyright',
         'ruff',
+        'superhtml',
+        'csskit',
     }
 
     local mti = require('mason-tool-installer')
@@ -73,8 +75,18 @@ local setup_lint_diag_format = function()
             lua = { 'selene' },
             c = { 'clang-format' },
             cpp = { 'clang-format' },
+            css = { 'csskit' },
             python = { 'ruff' },
         },
+
+        formatters = {
+            csskit = {
+                command = 'csskit',
+                args = { 'fmt', '-' },
+                stdin = true,
+            },
+        },
+
         format_on_save = {
             timeout_ms = 500,
             lsp_format = 'fallback',

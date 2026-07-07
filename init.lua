@@ -53,4 +53,5 @@ vim.lsp.enable({
     'lua_ls',
     'zls',
     'filepaths_ls',
+    'superhtml',
 })

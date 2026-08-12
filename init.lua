@@ -13,6 +13,7 @@ local cb = function(url) return 'https://codeberg.org/' .. url end
 
 vim.pack.add({
     { src = gh('scottmckendry/cyberdream.nvim') },
+    { src = gh('vague-theme/vague.nvim') },
     { src = gh('nvim-mini/mini.nvim') },
     { src = gh('mason-org/mason.nvim') },
     { src = gh('WhoIsSethDaniel/mason-tool-installer.nvim') },

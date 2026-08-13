@@ -53,8 +53,26 @@ autocmd('LspAttach', {
 })
 
 autocmd('BufWritePost', {
-    callback = function(event)
-        _ = event
+    callback = function()
         require('lint').try_lint()
+    end,
+})
+
+autocmd('FileType', {
+    pattern = { 'c', 'cpp', 'go' },
+    callback = function()
+        vim.opt_local.tabstop = 8
+        vim.opt_local.shiftwidth = 8
+        vim.opt_local.softtabstop = 8
+        vim.opt_local.expandtab = true
+        vim.opt_local.cindent = true
+    end,
+})
+
+autocmd('FileType', {
+    group = augroup('my.treesitter', { clear = true })
+    pattern = { 'c', 'cpp', 'css', 'go', 'lua', 'python', 'html', 'zig' }
+    callback = function(event)
+        vim.treesitter.start()
     end,
 })

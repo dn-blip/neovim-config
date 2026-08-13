@@ -11,6 +11,8 @@ local setup_mason = function()
         'superhtml',
         'csskit',
     }
+    
+    require('mason').setup()
 
     local mti = require('mason-tool-installer')
 
@@ -20,9 +22,17 @@ local setup_mason = function()
         run_on_start = true,
     })
 
-    mti.run_on_start()
+    local mason_bin = vim.fn.stdpath('data') .. '/mason/bin'
+    vim.env.PATH = mason_bin .. ':' .. vim.env.PATH
 
-    require('mason').setup()
+    vim.lsp.enable({
+        'basedpyright',
+        'clangd',
+        'filepaths_ls',
+        'gopls',
+        'lua_ls',
+        'superhtml',
+    })
 end
 
 local setup_colorschemes = function()

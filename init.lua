@@ -12,8 +12,8 @@ local gh = function(url) return 'https://github.com/' .. url end
 local cb = function(url) return 'https://codeberg.org/' .. url end
 
 vim.pack.add({
-    { src = gh('scottmckendry/cyberdream.nvim') },
     { src = gh('nvim-mini/mini.nvim') },
+    { src = gh('Aejkatappaja/sora') },
     { src = gh('mason-org/mason.nvim') },
     { src = gh('WhoIsSethDaniel/mason-tool-installer.nvim') },
     { src = gh('mason-org/mason-lspconfig.nvim') },
@@ -43,7 +43,7 @@ end
 require('plugins').setup()
 
 vim.cmd([[filetype plugin indent on]])
-vim.cmd('colorscheme cyberdream')
+vim.cmd('colorscheme sora')
 
 -- Enable LSPs,
 vim.lsp.enable({

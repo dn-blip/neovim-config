@@ -26,10 +26,8 @@ local setup_mason = function()
 end
 
 local setup_colorschemes = function()
-    require('cyberdream').setup({
+    require('sora').setup({
         transparent = true,
-        italic_comments = true,
-        cache = true,
     })
 end
 

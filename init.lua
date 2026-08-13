@@ -2,14 +2,12 @@ vim.g.mapleader = ' '
 vim.g.cc = 'zig cc'
 vim.g.loaded_netrwPlugin = 1
 
-vim.o.winborder = 'single'
-vim.o.pumborder = 'single'
-vim.o.complete = '.,w,b,o'
-vim.o.completeopt = 'fuzzy,menuone,noselect'
-
 local gh = function(url) return 'https://github.com/' .. url end
-
 local cb = function(url) return 'https://codeberg.org/' .. url end
+local autocmd = vim.api.nvim_create_autocmd
+local augroup = vim.api.nvim_create_augroup
+local opt = vim.opt
+local map = vim.keymap.set
 
 vim.pack.add({
     { src = gh('nvim-mini/mini.nvim') },
@@ -31,8 +29,10 @@ vim.pack.add({
 })
 
 ----- options -----
-vim.g.mapleader = ' '
-local opt = vim.opt
+vim.o.winborder = 'single'
+vim.o.pumborder = 'single'
+vim.o.complete = '.,w,b,o'
+vim.o.completeopt = 'fuzzy,menuone,noselect'
 
 opt.clipboard:append('unnamedplus')
 
@@ -57,9 +57,9 @@ opt.hlsearch = false
 opt.scrolloff = 8
 opt.wrap = true
 
-opt.history = 100 -- keep 100 lines of history
+opt.history = 100
 opt.redrawtime = 1500
-opt.timeoutlen = 300 -- time to wait for a mapped sequence to complete (in milliseconds)
+opt.timeoutlen = 300
 opt.ttimeoutlen = 10
 opt.updatetime = 100
 
@@ -67,8 +67,6 @@ vim.cmd([[filetype plugin indent on]])
 ----- end of options -----
 
 ----- key mappings -----
-local map = vim.keymap.set
-
 map('i', 'jj', '<ESC>')
 
 map('n', '<leader>w', '<cmd>w<CR>', { desc = 'save current buffer' })
@@ -111,17 +109,87 @@ map({ 'n', 'x', 'o' }, 's', '<Plug>(leap)', { desc = 'leap search local' })
 map('n', 'S', '<Plug>(leap-from-window)', { desc = 'leap in other window' })
 ----- end of key mappings -----
 
-require('autocmds')
 require('plugins').setup()
-vim.cmd('colorscheme sora')
 
--- Enable LSPs,
-vim.lsp.enable({
-    'basedpyright',
-    'clangd',
-    'gopls',
-    'lua_ls',
-    'zls',
-    'filepaths_ls',
-    'superhtml',
+----- autocommands -----
+local autocmd = vim.api.nvim_create_autocmd
+local augroup = vim.api.nvim_create_augroup
+
+-- Highlight yanked text
+local highlight_group = augroup('YankHighlight', { clear = true })
+autocmd('TextYankPost', {
+    pattern = '*',
+    callback = function() vim.hl.on_yank({ timeout = 170 }) end,
+    group = highlight_group,
 })
+
+-- TODO: Find a better way to implement this..
+autocmd('LspAttach', {
+    group = augroup('my.lsp', { clear = true }),
+    callback = function(ev)
+        local opts = { buffer = ev.buf, silent = true }
+        local client = assert(vim.lsp.get_client_by_id(ev.data.client_id))
+        -- Keymaps for things to do with the LSP server
+        if client:supports_method('textDocument/definition') then
+            map('n', 'gd', vim.lsp.buf.definition, opts)
+        end
+
+        if client:supports_method('textDocument/declaration') then
+            map('n', 'gD', vim.lsp.buf.declaration, opts)
+        end
+
+        if client:supports_method('textDocument/implementation') then
+            map('n', 'gi', vim.lsp.buf.implementation, opts)
+        end
+
+        if client:supports_method('textDocument/completion') then
+            vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
+        end
+
+        if client:supports_method('textDocument/references') then
+            map('n', 'gr', vim.lsp.buf.references, opts)
+        end
+
+        if client:supports_method('textDocument/typeDefinition') then
+            map('n', 'gy', vim.lsp.buf.type_definition, opts)
+        end
+
+        vim.keymap.set('n', 'K', function()
+            local max_width = math.max(20, math.floor(vim.api.nvim_win_get_width(0) * 0.5))
+            vim.lsp.buf.hover({ max_width = max_width })
+        end, opts)
+        map(
+            'n',
+            '<leader>th',
+            function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
+            { desc = '[t]oggle inlay [h]ints' }
+        )
+    end,
+})
+
+autocmd('BufWritePost', {
+    callback = function() require('lint').try_lint() end,
+})
+
+autocmd('FileType', {
+    pattern = { 'c', 'cpp', 'go' },
+    callback = function()
+        vim.opt_local.tabstop = 8
+        vim.opt_local.shiftwidth = 8
+        vim.opt_local.softtabstop = 8
+        vim.opt_local.expandtab = true
+        vim.opt_local.cindent = true
+    end,
+})
+
+autocmd('FileType', {
+    group = augroup('my.treesitter', { clear = true }),
+    pattern = '*',
+    callback = function(event)
+        local lang = vim.treesitter.language.get_lang(vim.bo.filetype) or vim.bo.filetype
+        if pcall(vim.treesitter.add, lang) then vim.treesitter.start(event.buf, lang) end
+    end,
+})
+----- end of autocommands -----
+require('sora').setup({ transparent = true, })
+vim.cmd('colorscheme sora')

@@ -70,9 +70,12 @@ autocmd('FileType', {
 })
 
 autocmd('FileType', {
-    group = augroup('my.treesitter', { clear = true })
-    pattern = { 'c', 'cpp', 'css', 'go', 'lua', 'python', 'html', 'zig' }
+    group = augroup('my.treesitter', { clear = true }),
+    pattern = '*',
     callback = function(event)
-        vim.treesitter.start()
+        local lang = vim.treesitter.language.get_lang(vim.bo.filetype) or vim.bo.filetype
+        if pcall(vim.treesitter.add, lang) then
+            vim.treesitter.start(event.buf, lang)
+        end
     end,
 })

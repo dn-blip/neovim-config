@@ -53,12 +53,10 @@ import zipfile
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from datetime import date
-from datetime import datetime
+from datetime import date, datetime
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.request import urlopen
-
 
 LOCKFILE_NAME = "tree-sitter-dl-lock.json"
 

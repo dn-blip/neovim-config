@@ -1,4 +1,5 @@
 vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
 vim.g.cc = 'zig cc'
 vim.g.loaded_netrwPlugin = 1
 
@@ -45,6 +46,9 @@ opt.expandtab = true
 opt.shiftwidth = indent
 opt.smartindent = true
 opt.tabstop = indent
+
+opt.foldlevelstart = 99
+opt.foldmethod = "syntax"
 
 opt.number = true
 opt.relativenumber = true
@@ -167,12 +171,34 @@ autocmd('LspAttach', {
     end,
 })
 
+-- Thanks to u/SergioVim in the r/neovim August monthly dotfile review thread..
+vim.api.nvim_create_autocmd("BufReadPost", {
+      group = augroup("my.cursor"),
+      desc = "Restore cursor position when opening a file",
+      callback = function(event)
+          local exclude = { "gitcommit", "COMMIT_EDITMSG" }
+          local ft = vim.bo[event.buf].filetype
+
+          if vim.tbl_contains(exclude, ft) or vim.b[event.buf].lazy_user_have_location then
+              return
+          end
+
+          vim.b[event.buf].lazy_user_have_location = true
+          local mark = vim.api.nvim_buf_get_mark(event.buf, '"')
+          local lcount = vim.api.nvim_buf_line_count(event.buf)
+
+          if mark[1] > 0 and mark[1] <= lcount then
+              pcall(vim.api.nvim_win_set_cursor, 0, mark)
+          end
+      end,
+})
+
 autocmd('BufWritePost', {
     callback = function() require('lint').try_lint() end,
 })
 
 autocmd('FileType', {
-    pattern = { 'c', 'cpp', 'go' },
+    pattern = { 'c', 'cpp', 'go', 'make' },
     callback = function()
         vim.opt_local.tabstop = 8
         vim.opt_local.shiftwidth = 8

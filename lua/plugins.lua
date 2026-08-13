@@ -29,6 +29,7 @@ local setup_mason = function()
         'basedpyright',
         'clangd',
         'filepaths_ls',
+        'gofmt',
         'gopls',
         'lua_ls',
         'superhtml',
@@ -84,6 +85,7 @@ local setup_lint_diag_format = function()
             c = { 'clang-format' },
             cpp = { 'clang-format' },
             css = { 'csskit' },
+            go = { 'gofmt' },
             python = { 'ruff' },
         },
 

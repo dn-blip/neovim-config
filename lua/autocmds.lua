@@ -53,9 +53,7 @@ autocmd('LspAttach', {
 })
 
 autocmd('BufWritePost', {
-    callback = function()
-        require('lint').try_lint()
-    end,
+    callback = function() require('lint').try_lint() end,
 })
 
 autocmd('FileType', {
@@ -74,8 +72,6 @@ autocmd('FileType', {
     pattern = '*',
     callback = function(event)
         local lang = vim.treesitter.language.get_lang(vim.bo.filetype) or vim.bo.filetype
-        if pcall(vim.treesitter.add, lang) then
-            vim.treesitter.start(event.buf, lang)
-        end
+        if pcall(vim.treesitter.add, lang) then vim.treesitter.start(event.buf, lang) end
     end,
 })

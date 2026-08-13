@@ -125,14 +125,7 @@ local setup_lazydev = function()
         },
     })
 end
-
-local setup = function()
-    setup_mason()
-    setup_colorschemes()
-    setup_yazi()
-    setup_lint_diag_format()
-    setup_mini()
-    setup_lazydev()
+local setup_whichkey = function()
     require('which-key').setup({
         preset = 'helix',
         win = {
@@ -146,6 +139,16 @@ local setup = function()
             keys = {},
         },
     })
+end
+
+local setup = function()
+    setup_mason()
+    setup_colorschemes()
+    setup_yazi()
+    setup_lint_diag_format()
+    setup_mini()
+    setup_lazydev()
+    setup_whichkey()
 end
 
 M.setup = setup

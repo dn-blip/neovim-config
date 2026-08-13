@@ -15,7 +15,6 @@ vim.pack.add({
     { src = gh('Aejkatappaja/sora') },
     { src = gh('mason-org/mason.nvim') },
     { src = gh('WhoIsSethDaniel/mason-tool-installer.nvim') },
-    { src = gh('mason-org/mason-lspconfig.nvim') },
     { src = gh('nvim-lua/plenary.nvim') },
     { src = gh('mikavilpas/yazi.nvim') },
     { src = gh('DrKJeff16/wezterm-types') },
@@ -116,9 +115,6 @@ map('n', 'S', '<Plug>(leap-from-window)', { desc = 'leap in other window' })
 require('plugins').setup()
 
 ----- autocommands -----
-local autocmd = vim.api.nvim_create_autocmd
-local augroup = vim.api.nvim_create_augroup
-
 -- Highlight yanked text
 local highlight_group = augroup('YankHighlight', { clear = true })
 autocmd('TextYankPost', {
@@ -173,24 +169,24 @@ autocmd('LspAttach', {
 
 -- Thanks to u/SergioVim in the r/neovim August monthly dotfile review thread..
 vim.api.nvim_create_autocmd("BufReadPost", {
-      group = augroup("my.cursor"),
-      desc = "Restore cursor position when opening a file",
-      callback = function(event)
-          local exclude = { "gitcommit", "COMMIT_EDITMSG" }
-          local ft = vim.bo[event.buf].filetype
+    group = augroup("my.cursor", { clear = true }),
+    desc = "Restore cursor position when opening a file",
+    callback = function(event)
+        local exclude = { "gitcommit", "COMMIT_EDITMSG" }
+        local ft = vim.bo[event.buf].filetype
 
-          if vim.tbl_contains(exclude, ft) or vim.b[event.buf].lazy_user_have_location then
-              return
-          end
+        if vim.tbl_contains(exclude, ft) or vim.b[event.buf].lazy_user_have_location then
+            return
+        end
 
-          vim.b[event.buf].lazy_user_have_location = true
-          local mark = vim.api.nvim_buf_get_mark(event.buf, '"')
-          local lcount = vim.api.nvim_buf_line_count(event.buf)
+        vim.b[event.buf].lazy_user_have_location = true
+        local mark = vim.api.nvim_buf_get_mark(event.buf, '"')
+        local lcount = vim.api.nvim_buf_line_count(event.buf)
 
-          if mark[1] > 0 and mark[1] <= lcount then
-              pcall(vim.api.nvim_win_set_cursor, 0, mark)
-          end
-      end,
+        if mark[1] > 0 and mark[1] <= lcount then
+            pcall(vim.api.nvim_win_set_cursor, 0, mark)
+        end
+    end,
 })
 
 autocmd('BufWritePost', {
@@ -217,5 +213,5 @@ autocmd('FileType', {
     end,
 })
 ----- end of autocommands -----
-require('sora').setup({ transparent = true, })
+require('sora').setup()
 vim.cmd('colorscheme sora')

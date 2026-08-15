@@ -36,12 +36,6 @@ local setup_mason = function()
     })
 end
 
-local setup_colorschemes = function()
-    require('sora').setup({
-        transparent = true,
-    })
-end
-
 local setup_yazi = function()
     require('yazi').setup({
         open_for_directories = true,
@@ -51,7 +45,7 @@ local setup_yazi = function()
     })
 end
 
-local setup_lint_diag_format = function()
+local setup_codetools = function()
     local diagnostics = {
         underline = true,
         virtual_text = true,
@@ -105,12 +99,10 @@ local setup_lint_diag_format = function()
 end
 
 local setup_mini = function()
-    require('mini.animate').setup()
     require('mini.icons').setup()
     require('mini.notify').setup()
-    require('mini.cmdline').setup()
+    --require('mini.cmdline').setup()
     require('mini.pick').setup()
-    require('mini.trailspace').setup()
     require('mini.pairs').setup()
     require('mini.bracketed').setup()
     require('mini.ai').setup()
@@ -145,9 +137,8 @@ end
 
 local setup = function()
     setup_mason()
-    setup_colorschemes()
     setup_yazi()
-    setup_lint_diag_format()
+    setup_codetools()
     setup_mini()
     setup_lazydev()
     setup_whichkey()

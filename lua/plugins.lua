@@ -106,8 +106,8 @@ local setup_mini = function()
     require('mini.pairs').setup()
     require('mini.bracketed').setup()
     require('mini.ai').setup()
-    require('mini.statusline').setup()
     require('mini.indentscope').setup()
+    require('mini.git').setup()
 end
 
 local setup_lazydev = function()

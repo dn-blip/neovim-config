@@ -36,14 +36,38 @@ local setup_mason = function()
     })
 end
 
-local setup_yazi = function()
-    require('yazi').setup({
-        open_for_directories = true,
+--local setup_yazi = function()
+--    require('yazi').setup({
+--        open_for_directories = true,
+--        keymaps = {
+--            show_help = '<f1>',
+--        },
+--    })
+--end
+
+local setup_oil = function()
+    require('oil').setup({
+        default_file_explorer = true,
+        delete_to_trash = true,
+        watch_for_changes = true,
+        columns = {
+            "icons",
+            "permissions",
+            "size",
+            "mtime",
+        },
         keymaps = {
-            show_help = '<f1>',
+            ["g?"] = { "actions.show_help", mode = 'n', }
+            ["h"] = { "actions.parent", mode = 'n', }
+            ["l"] = function()
+                        local entry = require("oil").get_cursor_entry()
+                        if entry and entry.type == "directory" then
+                            require('oil').select()
+                    end,
+            ["<Tab>"] = "actions.preview",
+            ["<CR>"] = "actions.select",
         },
     })
-end
 
 local setup_codetools = function()
     local diagnostics = {
@@ -137,7 +161,7 @@ end
 
 local setup = function()
     setup_mason()
-    setup_yazi()
+    setup_oil()
     setup_codetools()
     setup_mini()
     setup_lazydev()

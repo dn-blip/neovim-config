@@ -66,6 +66,8 @@ local setup_oil = function()
                     end,
             ["<Tab>"] = "actions.preview",
             ["<CR>"] = "actions.select",
+            ["q"] = "actions.close",
+            ["<C-c>"] = "actions.close",
         },
     })
 

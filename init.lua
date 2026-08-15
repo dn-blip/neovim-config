@@ -77,13 +77,17 @@ vim.cmd([[filetype plugin indent on]])
 ----- key mappings -----
 map('i', 'jj', '<ESC>')
 
-map('n', '<leader>w', '<cmd>w<CR>', { desc = 'save current buffer' })
-map('n', '<leader>q', '<cmd>q<CR>', { desc = '' })
+map('n', '<leader>w', '<cmd>w<CR>', { desc = 'save current buffer.' })
+map('n', '<leader>q', '<cmd>q<CR>', { desc = '[q]uit.' })
 
-map('n', '<leader>h', '<C-w>h', { desc = 'switch window left' })
-map('n', '<leader>l', '<C-w>l', { desc = 'switch window right' })
-map('n', '<leader>k', '<C-w>k', { desc = 'switch window up' })
-map('n', '<leader>j', '<C-w>j', { desc = 'switch window down' })
+map('n', '<leader>h', '<C-w>h', { desc = 'switch window left.' })
+map('n', '<leader>l', '<C-w>l', { desc = 'switch window right.' })
+map('n', '<leader>k', '<C-w>k', { desc = 'switch window up.' })
+map('n', '<leader>j', '<C-w>j', { desc = 'switch window down.' })
+
+map('n', '<leader>qf', '<cmd>copen<CR>', { desc = 'Open [q]uickfix [l]ist.' })
+map('n', '<leader>qfn', '<cmd>cnext<CR>', { desc = '[g]o to [n]ext quickfix list item.' })
+map('n', '<leader>qfp', '<cmd>cprev<CR>', { desc = '[g]o to [p]revious quickfix list item.' })
 
 map({ 'n', 'i', 'v' }, '<Up>', '<nop>')
 map({ 'n', 'i', 'v' }, '<Down>', '<nop>')
@@ -118,6 +122,28 @@ map('n', 'S', '<Plug>(leap-from-window)', { desc = 'leap in other window' })
 ----- end of key mappings -----
 
 require('plugins').setup()
+
+--- statusline ---
+local gitdata = function()
+    local data = vim.b.minigit_summary
+    local git_marker = ""
+    if summary and summary.head and summary.head ~= "" then
+        git_marker = "  " .. summary.head .. "  "
+    end
+    return git_marker
+end
+
+function mystatusline()
+    local git_data = gitdata()
+    local relative_path = " %f"
+    
+    return relative_path .. git_data
+end
+
+vim.opt.statusline = "%!v:lua.mystatusline()"
+--- end of statusline ---
+
+
 
 ----- autocommands -----
 -- Highlight yanked text
@@ -195,7 +221,10 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 })
 
 autocmd('BufWritePost', {
-    callback = function() require('lint').try_lint() end,
+    callback = function() 
+        require('lint').try_lint()
+        vim.diagnostic.setqflist({ open = false, })
+    end,
 })
 
 autocmd('FileType', {

@@ -33,6 +33,11 @@ vim.o.winborder = 'single'
 vim.o.pumborder = 'single'
 vim.o.complete = '.,w,b,o'
 vim.o.completeopt = 'fuzzy,menuone,noselect'
+-- Defines how completion behaves when you press <Tab>
+vim.o.wildmode = "longest:full,full"
+
+-- Configures the visual presentation of the completion menu
+vim.o.wildoptions = "pum"
 
 opt.clipboard:append('unnamedplus')
 

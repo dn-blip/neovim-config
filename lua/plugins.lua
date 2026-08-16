@@ -72,7 +72,7 @@ local setup_oil = function()
             ["<C-c>"] = "actions.close",
         },
     })
-
+end
 local setup_codetools = function()
     local diagnostics = {
         underline = true,

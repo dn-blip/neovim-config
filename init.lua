@@ -168,6 +168,12 @@ function _G.mywinbar()
     return filename .. modified .. '%='
 end
 
+autocmd('User', {
+    pattern = 'MiniGitUpdated',
+    group = augroup('my.statusline.git', { clear = true, }),
+    command = 'redrawstatus',
+})
+
 vim.opt.winbar = '%{%v:lua.custom_winbar()%}'
 vim.opt.statusline = '%!v:lua.mystatusline()'
 --- end of statusline and winbar ---

@@ -120,7 +120,6 @@ end
 local setup_mini = function()
     require('mini.icons').setup()
     require('mini.notify').setup()
-    --require('mini.cmdline').setup()
     require('mini.pick').setup()
     require('mini.pairs').setup()
     require('mini.bracketed').setup()
@@ -151,7 +150,6 @@ local setup = function()
     setup_oil()
     setup_codetools()
     setup_mini()
-    setup_lazydev()
     setup_whichkey()
 end
 

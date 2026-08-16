@@ -16,7 +16,6 @@ vim.pack.add({
     { src = gh('mason-org/mason.nvim') },
     { src = gh('WhoIsSethDaniel/mason-tool-installer.nvim') },
     { src = gh('nvim-lua/plenary.nvim') },
-    --{ src = gh('mikavilpas/yazi.nvim') },
     { src = gh('DrKJeff16/wezterm-types') },
     { src = gh('folke/lazydev.nvim') },
     { src = gh('folke/which-key.nvim') },
@@ -86,9 +85,10 @@ map('n', '<leader>l', '<C-w>l', { desc = 'switch window right.' })
 map('n', '<leader>k', '<C-w>k', { desc = 'switch window up.' })
 map('n', '<leader>j', '<C-w>j', { desc = 'switch window down.' })
 
-map('n', '<leader>qf', '<cmd>copen<CR>', { desc = 'Open [q]uickfix [l]ist.' })
-map('n', '<leader>qfn', '<cmd>cnext<CR>', { desc = '[g]o to [n]ext quickfix list item.' })
-map('n', '<leader>qfp', '<cmd>cprev<CR>', { desc = '[g]o to [p]revious quickfix list item.' })
+map('n', '<leader>qf', '<cmd>copen<CR>', { desc = 'Open [q]uick[f]ix list.' })
+map('n', '<leader>qfn', '<cmd>cnext<CR>', { desc = '[q]uick[f]ix list: [n]ext item.' })
+map('n', '<leader>qfp', '<cmd>cprev<CR>', { desc = '[q]uick[f]ix list: go to [p]revious' })
+map('n', '<leader>qfc', '<cmd>cclose<CR>', { desc = '[q]uick[f]ix list: [c]lose.' })
 
 map({ 'n', 'i', 'v' }, '<Up>', '<nop>')
 map({ 'n', 'i', 'v' }, '<Down>', '<nop>')
@@ -110,9 +110,7 @@ map(
 )
 
 map('n', '<leader>?', function() require('which-key').show({ global = true }) end)
-map({ 'n', 'v' }, '<leader>f', '<cmd>Yazi<cr>', { desc = 'Open yazi at current file' })
-map({ 'n', 'v' }, '<leader>fr', '<cmd>Yazi toggle<cr>', { desc = 'Resume last yazi session' })
-map({ 'n', 'v' }, '<leader>fd', '<cmd>Yazi cwd', { desc = 'Open Yazi in current directory' })
+map({ 'n', 'v' }, '<leader>f', '<cmd>Oil<cr>', { desc = 'Open oil.nvim' })
 map({ 'n', 'x', 'o' }, 's', '<Plug>(leap)', { desc = 'leap search local' })
 map('n', 'S', '<Plug>(leap-from-window)', { desc = 'leap in other window' })
 ----- end of key mappings -----
@@ -121,12 +119,6 @@ require('plugins').setup()
 
 --- statusline ---
 --- stored seperately in case I switch from mini.git
-local gitdata = function()
-    require('mini.git')
-    local summary = vim.b.minigit_summary_string or ""
-    return 'Git: ' .. summary
-end
-
 local getmode = function()
     local mode_table = {
         ['n'] = 'NORMAL',
@@ -169,21 +161,24 @@ local getmode = function()
     return mode_table[vim.fn.mode()]
 end
 
+local gitdata = function()
+    require('mini.git')
+    local summary = vim.b.minigit_summary_string or nil
+    return 'Git: ' .. summary
+end
+
 function _G.mystatusline()
     local git_data = gitdata()
-    local relative_path = vim.fn.expand('%:t')
+    local relative_path = '%f'
+    local modified_flag = '%m'
 
     if relative_path and relative_path == '' then relative_path = '[unnamed]' end
 
-    git_data = ' %= ' .. git_data
-
-    return getmode() .. '    ' .. relative_path .. git_data
+    return getmode() .. '    ' .. relative_path .. modified_flag .. '%=' .. git_data
 end
 
 vim.opt.statusline = '%!v:lua.mystatusline()'
 --- end of statusline ---
-
-
 
 ----- autocommands -----
 -- Highlight yanked text

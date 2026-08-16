@@ -17,7 +17,7 @@ vim.pack.add({
     { src = gh('WhoIsSethDaniel/mason-tool-installer.nvim') },
     { src = gh('nvim-lua/plenary.nvim') },
     { src = gh('DrKJeff16/wezterm-types') },
-    { src = gh('folke/lazydev.nvim') },
+    --{ src = gh('folke/lazydev.nvim') },
     { src = gh('folke/which-key.nvim') },
     { src = gh('antonk52/filepaths_ls.nvim') },
     { src = gh('mfussenegger/nvim-lint') },

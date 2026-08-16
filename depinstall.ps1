@@ -29,5 +29,22 @@ $InternetDownloadTools = @(
         "kristoff-it/superhtml",
         "zigtools/zls",
         "golang/tools", # gopls
+        "tree-sitter/tree-sitter", # tree-sitter-cli
 )
-# Everything else is via pip or smth.
+# Everything else is via pip or smth
+foreach ($ID in $WingetTools) 
+{
+        $message = "About to install $ID via Winget. This action is reversible."
+        $title = "confirmation"
+        $choices = @("&Yes", "&No")
+        $default = 1 # No as default
+        $choice = $Host.UI.PromptForChoice($title, $message, $choices, $default)
+
+        if ($choice -eq 0) 
+        {
+                # yes code path
+                winget install --id $ID --silent --accept-source-agreements --accept-package-agreements
+        } else {
+                Write-Host "Denied installing $ID."
+        }
+}

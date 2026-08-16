@@ -36,15 +36,6 @@ local setup_mason = function()
     })
 end
 
---local setup_yazi = function()
---    require('yazi').setup({
---        open_for_directories = true,
---        keymaps = {
---            show_help = '<f1>',
---        },
---    })
---end
-
 local setup_oil = function()
     require('oil').setup({
         default_file_explorer = true,
@@ -139,15 +130,6 @@ local setup_mini = function()
     require('mini.diff').setup()
 end
 
-local setup_lazydev = function()
-    require('lazydev').setup({
-        library = {
-            { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
-            { path = 'wezterm-types', mods = { 'wezterm' } },
-            { path = 'xmake-luals-addon/library', files = { 'xmake.lua' } },
-        },
-    })
-end
 local setup_whichkey = function()
     require('which-key').setup({
         preset = 'helix',

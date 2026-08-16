@@ -54,6 +54,7 @@ opt.cursorline = true
 opt.termguicolors = true
 opt.showmode = false
 opt.hlsearch = false
+opt.colorcolumn = "80,100"
 
 opt.scrolloff = 8
 opt.wrap = true

@@ -15,7 +15,6 @@ vim.pack.add({
     { src = gh('Aejkatappaja/sora') },
     { src = gh('mason-org/mason.nvim') },
     { src = gh('WhoIsSethDaniel/mason-tool-installer.nvim') },
-    { src = gh('folke/which-key.nvim') },
     { src = gh('mfussenegger/nvim-lint') },
     { src = gh('stevearc/oil.nvim') },
     { src = gh('stevearc/conform.nvim') },

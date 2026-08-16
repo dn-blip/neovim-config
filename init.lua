@@ -117,7 +117,7 @@ map('n', 'S', '<Plug>(leap-from-window)', { desc = 'leap in other window' })
 
 require('plugins').setup()
 
---- statusline ---
+--- statusline and winbar---
 --- stored seperately in case I switch from mini.git
 local getmode = function()
     local mode_table = {
@@ -177,8 +177,9 @@ function _G.mystatusline()
     return getmode() .. '    ' .. relative_path .. modified_flag .. '%=' .. git_data
 end
 
+vim.opt.winbar = '%f'
 vim.opt.statusline = '%!v:lua.mystatusline()'
---- end of statusline ---
+--- end of statusline and winbar ---
 
 ----- autocommands -----
 -- Highlight yanked text

@@ -120,23 +120,67 @@ map('n', 'S', '<Plug>(leap-from-window)', { desc = 'leap in other window' })
 require('plugins').setup()
 
 --- statusline ---
+--- stored seperately in case I switch from mini.git
 local gitdata = function()
-    local data = vim.b.minigit_summary
-    local git_marker = ""
-    if summary and summary.head and summary.head ~= "" then
-        git_marker = "  " .. summary.head .. "  "
-    end
-    return git_marker
+    require('mini.git')
+    local summary = vim.b.minigit_summary_string or ""
+    return 'Git: ' .. summary
 end
 
-function mystatusline()
+local getmode = function()
+    local mode_table = {
+        ['n'] = 'NORMAL',
+        ['no'] = 'OP_PENDING',
+        ['nov'] = 'OP_PENDING',
+        ['noV'] = 'OP_PENDING',
+        ['no\22'] = 'OP_PENDING',
+        ['niI'] = 'NORMAL',
+        ['niR'] = 'NORMAL',
+        ['niV'] = 'NORMAL',
+        ['nt'] = 'NORMAL',
+        ['ntT'] = 'NORMAL',
+        ['v'] = 'VISUAL',
+        ['vs'] = 'VISUAL',
+        ['V'] = 'V-LINE',
+        ['Vs'] = 'V-LINE',
+        ['\22'] = 'V-BLOCK',
+        ['\22s'] = 'V-BLOCK',
+        ['s'] = 'SELECT',
+        ['S'] = 'S-LINE',
+        ['\19'] = 'S-BLOCK',
+        ['i'] = 'INSERT',
+        ['ic'] = 'INSERT',
+        ['ix'] = 'INSERT',
+        ['R'] = 'REPLACE',
+        ['Rc'] = 'REPLACE',
+        ['Rx'] = 'REPLACE',
+        ['Rv'] = 'V-REPLACE',
+        ['Rvc'] = 'V-REPLACE',
+        ['Rvx'] = 'V-REPLACE',
+        ['c'] = 'COMMAND',
+        ['cv'] = 'EX',
+        ['ce'] = 'EX',
+        ['r'] = 'REPLACE',
+        ['rm'] = 'MORE',
+        ['r?'] = 'CONFIRM',
+        ['!'] = 'SHELL',
+        ['t'] = 'TERMINAL',
+    }
+    return mode_table[vim.fn.mode()]
+end
+
+function _G.mystatusline()
     local git_data = gitdata()
-    local relative_path = " %f"
-    
-    return relative_path .. git_data
+    local relative_path = vim.fn.expand('%:t')
+
+    if relative_path and relative_path == '' then relative_path = '[unnamed]' end
+
+    git_data = ' %= ' .. git_data
+
+    return getmode() .. '    ' .. relative_path .. git_data
 end
 
-vim.opt.statusline = "%!v:lua.mystatusline()"
+vim.opt.statusline = '%!v:lua.mystatusline()'
 --- end of statusline ---
 
 

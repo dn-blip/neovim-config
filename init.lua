@@ -170,12 +170,12 @@ end
 
 function _G.mywinbar()
     local filename = local file_path = vim.fn.expand('%:~:.')
-    local modified = '%m'
+    local modified = ' %m'
     if filename == '' then filename = '[no name]' end
-    return filename .. '%=' .. modified
+    return filename .. modified .. '%='
 end
 
-vim.opt.winbar = '%v:lua.mywinbar()'
+vim.opt.winbar = '%{%v:lua.custom_winbar()%}'
 vim.opt.statusline = '%!v:lua.mystatusline()'
 --- end of statusline and winbar ---
 

@@ -63,6 +63,7 @@ local setup_oil = function()
                         local entry = require("oil").get_cursor_entry()
                         if entry and entry.type == "directory" then
                             require('oil').select()
+                        end
                     end,
             ["<Tab>"] = "actions.preview",
             ["<CR>"] = "actions.select",

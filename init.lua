@@ -79,7 +79,7 @@ map('n', '<leader>l', '<C-w>l', { desc = 'switch window right.' })
 map('n', '<leader>k', '<C-w>k', { desc = 'switch window up.' })
 map('n', '<leader>j', '<C-w>j', { desc = 'switch window down.' })
 
-map('n', '<leader>qf', '<cmd>copen<CR>', { desc = 'Open [q]uick[f]ix list.' })
+map('n', '<leader>qfo', '<cmd>copen<CR>', { desc = 'Open [q]uick[f]ix list.' })
 map('n', '<leader>qfn', '<cmd>cnext<CR>', { desc = '[q]uick[f]ix list: [n]ext item.' })
 map('n', '<leader>qfp', '<cmd>cprev<CR>', { desc = '[q]uick[f]ix list: go to [p]revious' })
 map('n', '<leader>qfc', '<cmd>cclose<CR>', { desc = '[q]uick[f]ix list: [c]lose.' })
@@ -163,7 +163,7 @@ function _G.mystatusline()
 end
 
 function _G.mywinbar()
-    local filename = local file_path = vim.fn.expand('%:~:.')
+    local filename = vim.fn.expand('%:~:.')
     local modified = ' %m'
     if filename == '' then filename = '[no name]' end
     return filename .. modified .. '%='
@@ -175,7 +175,7 @@ autocmd('User', {
     command = 'redrawstatus',
 })
 
-vim.opt.winbar = '%{%v:lua.custom_winbar()%}'
+vim.opt.winbar = '%{%v:lua.mywinbar()%}'
 vim.opt.statusline = '%!v:lua.mystatusline()'
 --- end of statusline and winbar ---
 
@@ -255,7 +255,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 })
 
 autocmd('BufWritePost', {
-    callback = function() 
+    callback = function()
         require('lint').try_lint()
         vim.diagnostic.setqflist({ open = false, })
     end,

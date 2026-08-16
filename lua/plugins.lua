@@ -134,6 +134,7 @@ local setup_mini = function()
     require('mini.ai').setup()
     require('mini.indentscope').setup()
     require('mini.git').setup()
+    require('mini.diff').setup()
 end
 
 local setup_lazydev = function()

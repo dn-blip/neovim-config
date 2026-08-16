@@ -6,7 +6,7 @@ ABOUT
   my primary editor on every system I use.
 
 DEPENDENCIES
-  - fzf, rg, fd-find, python3,
+  - rg, python3,
   - tree-sitter-cli,
   - git,
   These can all be installed through your package manager, 

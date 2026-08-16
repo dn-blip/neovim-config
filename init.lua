@@ -161,23 +161,21 @@ local getmode = function()
     return mode_table[vim.fn.mode()]
 end
 
-local gitdata = function()
-    require('mini.git')
-    local summary = vim.b.minigit_summary_string or nil
-    return 'Git: ' .. summary
-end
-
 function _G.mystatusline()
-    local git_data = gitdata()
-    local relative_path = '%f'
-    local modified_flag = '%m'
-
-    if relative_path and relative_path == '' then relative_path = '[unnamed]' end
-
-    return getmode() .. '    ' .. relative_path .. modified_flag .. '%=' .. git_data
+    require('mini.git')
+    local summary = vim.b.minigit_summary_string or '?'
+    local git_data = 'Git: ' .. summary
+    return getmode() .. '%=' .. git_data
 end
 
-vim.opt.winbar = '%f'
+function _G.mywinbar()
+    local filename = local file_path = vim.fn.expand('%:~:.')
+    local modified = '%m'
+    if filename == '' then filename = '[no name]' end
+    return filename .. '%=' .. modified
+end
+
+vim.opt.winbar = '%v:lua.mywinbar()'
 vim.opt.statusline = '%!v:lua.mystatusline()'
 --- end of statusline and winbar ---
 

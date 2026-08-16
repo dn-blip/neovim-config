@@ -9,7 +9,7 @@ local autocmd = vim.api.nvim_create_autocmd
 local augroup = vim.api.nvim_create_augroup
 local opt = vim.opt
 local map = vim.keymap.set
-
+--- use <C-x><C-f> for file completion
 vim.pack.add({
     { src = gh('nvim-mini/mini.nvim') },
     { src = gh('Aejkatappaja/sora') },
@@ -17,11 +17,9 @@ vim.pack.add({
     { src = gh('WhoIsSethDaniel/mason-tool-installer.nvim') },
     { src = gh('nvim-lua/plenary.nvim') },
     { src = gh('folke/which-key.nvim') },
-    { src = gh('antonk52/filepaths_ls.nvim') },
     { src = gh('mfussenegger/nvim-lint') },
     { src = gh('stevearc/oil.nvim') },
     { src = gh('stevearc/conform.nvim') },
-    { src = gh('NStefan002/screenkey.nvim') },
     { src = cb('cryptomilk/nvim-pack-ui') },
     { src = cb('andyg/leap.nvim') },
 })
@@ -33,7 +31,6 @@ vim.o.complete = '.,w,b,o'
 vim.o.completeopt = 'fuzzy,menuone,noselect'
 -- Defines how completion behaves when you press <Tab>
 vim.o.wildmode = "longest:full,full"
-
 -- Configures the visual presentation of the completion menu
 vim.o.wildoptions = "pum"
 

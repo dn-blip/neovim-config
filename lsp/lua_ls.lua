@@ -14,10 +14,15 @@ return {
     },
     settings = {
         Lua = {
+            version = 'LuaJIT',
             diagnostics = {
                 globals = { 'vim' },
             },
             workspace = {
+                library = {
+                    vim.fn.expand('$VIMRUNTIME/lua'),
+                    vim.fn.stdpath('config') .. '/lua',
+                },
                 checkThirdParty = true,
             },
             telemetry = {
@@ -28,5 +33,5 @@ return {
             },
         },
     },
-    single_file_support = false,
+    single_file_support = true,
 }

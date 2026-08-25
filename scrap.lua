@@ -41,3 +41,29 @@ local function delete_qf_items()
     local target_line = math.min(start_idx, total_items > 0 and total_items or 1)
     vim.fn.cursor(target_line, 1)
 end
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "qf",
+  callback = function()
+    vim.cmd([[
+      " Extend syntax to include additional keywords.
+      syntax match qfLineNr   "[^|]*"   contained contains=qfError,qfWarning,qfNote,qfInfo
+      syntax match qfError    "error"   contained
+      syntax match qfWarning  "warning" contained
+      syntax match qfNote     "note"    contained
+      syntax match qfInfo     "info"    contained
+    ]])
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "qf",
+  callback = function()
+    -- Enable line wrapping
+    vim.opt_local.wrap = true
+
+    -- Optional: Keep the left side fixed if you prefer
+    vim.opt_local.breakindent = true
+    vim.api.nvim_set_hl(0, "qfLineNr", { fg = '#D8DEE9', bg = "none" })
+  end,
+})

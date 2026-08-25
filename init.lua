@@ -256,14 +256,19 @@ vim.opt.statusline = '%!v:lua.mystatusline()'
 --- end of statusline and winbar ---
 
 
--- colorscheme: default with some orange  --
+-- colorscheme: default with some orange & yellow hints  --
 local orange = '#FF8700'
+local yellow = '#FFD700'
 vim.api.nvim_set_hl(0, 'Search', { fg = '#000000', bg = orange, bold = true })
 vim.api.nvim_set_hl(0, 'IncSearch', { fg = '#000000', bg = '#FFB366' })
 vim.api.nvim_set_hl(0, 'LeapMatch', { fg = orange, bold = true, underline = true })
 vim.api.nvim_set_hl(0, 'LeapLabelPrimary', { fg = '#000000', bg = orange, bold = true })
 vim.api.nvim_set_hl(0, 'Statement', { fg = orange, bold = true })
 vim.api.nvim_set_hl(0, 'Keyword', { fg = orange, bold = true })
+vim.api.nvim_set_hl(0, 'StorageClass', { fg = yellow, bold = true })
+vim.api.nvim_set_hl(0, 'TypeQualifier', { fg = yellow, bold = true })
+vim.api.nvim_set_hl(0, 'Type' { fg = yellow })
+
 vim.api.nvim_set_hl(0, 'DiagnosticWarn', { fg = orange, bold = true })
 vim.api.nvim_set_hl(0, "qfError", { link = "DiagnosticSignError", default = true })
 vim.api.nvim_set_hl(0, "qfWarning", { link = "DiagnosticSignWarn", default = true })

@@ -10,12 +10,65 @@ local augroup = vim.api.nvim_create_augroup
 local opt = vim.opt
 local map = vim.keymap.set
 
+--- utility: terminal buffer ---
+local make_terminal_buffer = function (default_prog)
+    local buf = vim.api.nvim_create_buf(true, true)
+    vim.api.nvim_buf_set_name(buf, "Termed")
+    vim.api.nvim_win_set_buf(0, buf)
+
+    local prompt_char = '>'
+    
+    vim.api.nvim_buf_set_option(buf, 'filetype', 'termed')
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { prompt_char })
+    vim.api.nvim_win_set_cursor(0, {1, 2})
+
+    --on_stdout = function(chan_id, data, name) vim.print(data) end,
+    local get_stdout = function(_, data, _)
+        if data then
+            for _, line in ipairs(data) do
+                if line ~= '' then
+                    local is_prompt = line:match("^%a:[\\%w%s%p]+>$") or line:match("^Microsoft Windows") or line:match("^%s*P%s*S%s+.*>$")
+                    if not is_prompt then
+                        vim.api.nvim_buf_set_lines(buf, -1, -1, false, { line })
+                    end
+                end
+            end
+        end
+    end
+
+    local spawn_line = function()
+        vim.api.nvim_buf_set_lines(buf, -1, -1, false, { '> ' })
+        local total_lines = vim.api.nvim_buf_line_count(buf)
+        vim.api.nvim_win_set_cursor(0, { total_lines, 2 })
+    end
+
+    local job_id
+    
+    local send_current_line = function()
+        local current_line = vim.api.nvim_get_current_line()
+        local escape_pattern = string.format("^%%s", prompt_char)
+        local cmd = current_line:gsub(escape_pattern, '')
+        vim.api.nvim_chan_send(job_id, cmd .. "\n")
+
+        -- spawn next line
+        vim.schedule(spawn_line)
+    end
+
+    local prog = default_prog or 'cmd.exe'
+    
+    job_id = vim.fn.jobstart({ prog }, {
+        on_stdout = get_stdout,
+        stdout_buffered = false,
+    })
+
+    map('n', '<CR>', send_current_line, { buffer = buf, noremap = true, silent = true })
+end
+
 --- use <C-x><C-f> for file completion
 --- use <C-x><C-o> for omnicompletion triggers
 
 vim.pack.add({
     { src = gh('nvim-mini/mini.nvim') },
-    { src = gh('Aejkatappaja/sora') },
     { src = gh('mason-org/mason.nvim') },
     { src = gh('WhoIsSethDaniel/mason-tool-installer.nvim') },
     { src = gh('mfussenegger/nvim-lint') },
@@ -182,6 +235,25 @@ vim.opt.winbar = '%{%v:lua.mywinbar()%}'
 vim.opt.statusline = '%!v:lua.mystatusline()'
 --- end of statusline and winbar ---
 
+-- colorscheme: default with some orange  --
+local orange = '#FF8700' 
+vim.api.nvim_set_hl(0, 'Search', { fg = '#000000', bg = orange, bold = true, })
+vim.api.nvim_set_hl(0, 'IncSearch', { fg = '#000000', bg = '#FFB366', })
+vim.api.nvim_set_hl(0, 'LeapMatch', { fg = orange, bold = true, underline = true, })
+vim.api.nvim_set_hl(0, "LeapLabelPrimary", { fg = '#000000', bg = orange, bold = true, })
+vim.api.nvim_set_hl(0, 'Statement', { fg = orange, bold = true, })
+vim.api.nvim_set_hl(0, 'Keyword', { fg = orange, bold = true, })
+vim.api.nvim_set_hl(0, 'DiagnosticWarn', { fg = orange, bold = true, })
+
+-- end of colorscheme --
+
+-- user commands --
+vim.api.nvim_create_user_command("Termed", 
+    function (opts) make_terminal_buffer(opts.args) end, 
+    { nargs = 1, desc = 'Opens up an interactive terminal scratchpad.' })
+
+-- end of user commands --
+
 ----- autocommands -----
 -- Highlight yanked text
 local highlight_group = augroup('YankHighlight', { clear = true })
@@ -236,7 +308,7 @@ autocmd('LspAttach', {
 })
 
 -- Thanks to u/SergioVim in the r/neovim August monthly dotfile review thread..
-vim.api.nvim_create_autocmd("BufReadPost", {
+autocmd("BufReadPost", {
     group = augroup("my.cursor", { clear = true }),
     desc = "Restore cursor position when opening a file",
     callback = function(event)
@@ -283,6 +355,15 @@ autocmd('FileType', {
         if pcall(vim.treesitter.add, lang) then vim.treesitter.start(event.buf, lang) end
     end,
 })
+
+autocmd('FileType', {
+    group = augroup('my.termed', { clear = true, })
+    pattern = 'termed',
+    callback = function()
+        vim.cmd('syntax match TermedBracket "^>"')
+        vim.cmd('highlight link TermedBracket DiagnosticWarn')
+        vim.opt_local.statusline = " %#DiagnosticWarn#   TERMINAL %* [Termed] %= Line: %l/%L "
+    end,
+})
 ----- end of autocommands -----
-require('sora').setup()
-vim.cmd('colorscheme sora')
+-- end of config --

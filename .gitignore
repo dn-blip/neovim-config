@@ -1,9 +1,6 @@
 # Gitignore file
 .luarc.json
 
-# Ignore stuff
-nvim-pack-lock.json
-
 # tree-sitter-dl is the script by @dzfrias on GitHub I use for installing parsers
 tree-sitter-dl-lock.json
 *.scm

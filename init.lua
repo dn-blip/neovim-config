@@ -11,55 +11,80 @@ local opt = vim.opt
 local map = vim.keymap.set
 
 --- utility: terminal buffer ---
-local make_terminal_buffer = function (default_prog)
+local make_terminal_buffer = function(default_prog)
     local buf = vim.api.nvim_create_buf(true, true)
-    vim.api.nvim_buf_set_name(buf, "Termed")
+    vim.api.nvim_buf_set_name(buf, 'Termed')
     vim.api.nvim_win_set_buf(0, buf)
 
-    local prompt_char = '>'
-    
+    -- cursor at the absolute beginning
     vim.api.nvim_buf_set_option(buf, 'filetype', 'termed')
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { prompt_char })
-    vim.api.nvim_win_set_cursor(0, {1, 2})
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { '' })
+    vim.api.nvim_win_set_cursor(0, { 1, 0 })
 
-    --on_stdout = function(chan_id, data, name) vim.print(data) end,
+    local job_id
+    local last_sent_cmd = ''
+
     local get_stdout = function(_, data, _)
         if data then
+            local lines_added = false
             for _, line in ipairs(data) do
+                -- carriage return cleanup
+                line = line:gsub('\r', '')
+
+                -- strip whitespace
+                local clean_line = line:gsub('%s*$', '')
+
                 if line ~= '' then
-                    local is_prompt = line:match("^%a:[\\%w%s%p]+>$") or line:match("^Microsoft Windows") or line:match("^%s*P%s*S%s+.*>$")
-                    if not is_prompt then
+                    local is_prompt = line:match('^%a:[\\%w%s%p]+>$')
+                        or line:match('^Microsoft Windows')
+                        or line:match('^%s*P%s*S%s+.*>$')
+
+                    -- HACK: Check if what we sent came back to us
+                    local is_echo = (clean_line == last_sent_cmd) or (clean_line == '@echo off')
+                    if not is_prompt and not is_echo then
                         vim.api.nvim_buf_set_lines(buf, -1, -1, false, { line })
+                        lines_added = true
                     end
                 end
+            end
+
+            if lines_added then
+                vim.schedule(function()
+                    local total_lines = vim.api.nvim_buf_line_count(buf)
+                    vim.api.nvim_win_set_cursor(0, { total_lines, 0 })
+                end)
             end
         end
     end
 
     local spawn_line = function()
-        vim.api.nvim_buf_set_lines(buf, -1, -1, false, { '> ' })
+        vim.api.nvim_buf_set_lines(buf, -1, -1, false, { '' })
         local total_lines = vim.api.nvim_buf_line_count(buf)
-        vim.api.nvim_win_set_cursor(0, { total_lines, 2 })
+        vim.api.nvim_win_set_cursor(0, { total_lines, 0 })
     end
 
-    local job_id
-    
     local send_current_line = function()
         local current_line = vim.api.nvim_get_current_line()
-        local escape_pattern = string.format("^%%s", prompt_char)
-        local cmd = current_line:gsub(escape_pattern, '')
-        vim.api.nvim_chan_send(job_id, cmd .. "\n")
 
-        -- spawn next line
+        last_sent_cmd = current_line:gsub('%s*$', '')
+
+        vim.api.nvim_chan_send(job_id, current_line .. '\n')
+
         vim.schedule(spawn_line)
     end
 
     local prog = default_prog or 'cmd.exe'
-    
-    job_id = vim.fn.jobstart({ prog }, {
+    local spawn_cmd = { prog }
+
+    -- headless background arguments to prevent shell replication
+    if prog == 'powershell.exe' or prog == 'pwsh' then spawn_cmd = { prog, '-NoProfile', '-Command', '-' } end
+
+    job_id = vim.fn.jobstart(spawn_cmd, {
         on_stdout = get_stdout,
         stdout_buffered = false,
     })
+
+    if prog == 'cmd.exe' then vim.api.nvim_chan_send(job_id, '@echo off\n') end
 
     map('n', '<CR>', send_current_line, { buffer = buf, noremap = true, silent = true })
 end
@@ -84,9 +109,9 @@ vim.o.pumborder = 'single'
 vim.o.complete = '.,w,b,o'
 vim.o.completeopt = 'fuzzy,menuone,noselect'
 -- Defines how completion behaves when you press <Tab>
-vim.o.wildmode = "longest:full,full"
+vim.o.wildmode = 'longest:full,full'
 -- Configures the visual presentation of the completion menu
-vim.o.wildoptions = "pum"
+vim.o.wildoptions = 'pum'
 
 opt.clipboard:append('unnamedplus')
 
@@ -101,7 +126,7 @@ opt.smartindent = true
 opt.tabstop = indent
 
 opt.foldlevelstart = 99
-opt.foldmethod = "syntax"
+opt.foldmethod = 'syntax'
 
 opt.number = true
 opt.relativenumber = true
@@ -110,7 +135,7 @@ opt.cursorline = true
 opt.termguicolors = true
 opt.showmode = false
 opt.hlsearch = false
-opt.colorcolumn = "80,100"
+opt.colorcolumn = '80,100'
 
 opt.scrolloff = 8
 opt.wrap = true
@@ -145,12 +170,7 @@ map({ 'n', 'i', 'v' }, '<Down>', '<nop>')
 map({ 'n', 'i', 'v' }, '<Left>', '<nop>')
 map({ 'n', 'i', 'v' }, '<Right>', '<nop>')
 
-map(
-    'n',
-    '<leader>pb',
-    function() require('mini.pick').builtin.buffers() end,
-    { desc = '[p]ick [b]uffers (mini.nvim)' }
-)
+map('n', '<leader>pb', function() require('mini.pick').builtin.buffers() end, { desc = '[p]ick [b]uffers (mini.nvim)' })
 
 map(
     'n',
@@ -227,7 +247,7 @@ end
 
 autocmd('User', {
     pattern = 'MiniGitUpdated',
-    group = augroup('my.statusline.git', { clear = true, }),
+    group = augroup('my.statusline.git', { clear = true }),
     command = 'redrawstatus',
 })
 
@@ -236,21 +256,23 @@ vim.opt.statusline = '%!v:lua.mystatusline()'
 --- end of statusline and winbar ---
 
 -- colorscheme: default with some orange  --
-local orange = '#FF8700' 
-vim.api.nvim_set_hl(0, 'Search', { fg = '#000000', bg = orange, bold = true, })
-vim.api.nvim_set_hl(0, 'IncSearch', { fg = '#000000', bg = '#FFB366', })
-vim.api.nvim_set_hl(0, 'LeapMatch', { fg = orange, bold = true, underline = true, })
-vim.api.nvim_set_hl(0, "LeapLabelPrimary", { fg = '#000000', bg = orange, bold = true, })
-vim.api.nvim_set_hl(0, 'Statement', { fg = orange, bold = true, })
-vim.api.nvim_set_hl(0, 'Keyword', { fg = orange, bold = true, })
-vim.api.nvim_set_hl(0, 'DiagnosticWarn', { fg = orange, bold = true, })
+local orange = '#FF8700'
+vim.api.nvim_set_hl(0, 'Search', { fg = '#000000', bg = orange, bold = true })
+vim.api.nvim_set_hl(0, 'IncSearch', { fg = '#000000', bg = '#FFB366' })
+vim.api.nvim_set_hl(0, 'LeapMatch', { fg = orange, bold = true, underline = true })
+vim.api.nvim_set_hl(0, 'LeapLabelPrimary', { fg = '#000000', bg = orange, bold = true })
+vim.api.nvim_set_hl(0, 'Statement', { fg = orange, bold = true })
+vim.api.nvim_set_hl(0, 'Keyword', { fg = orange, bold = true })
+vim.api.nvim_set_hl(0, 'DiagnosticWarn', { fg = orange, bold = true })
 
 -- end of colorscheme --
 
 -- user commands --
-vim.api.nvim_create_user_command("Termed", 
-    function (opts) make_terminal_buffer(opts.args) end, 
-    { nargs = 1, desc = 'Opens up an interactive terminal scratchpad.' })
+vim.api.nvim_create_user_command(
+    'Termed',
+    function(opts) make_terminal_buffer(opts.args) end,
+    { nargs = 1, desc = 'Opens up an interactive terminal scratchpad.' }
+)
 
 -- end of user commands --
 
@@ -270,13 +292,9 @@ autocmd('LspAttach', {
         local opts = { buffer = ev.buf, silent = true }
         local client = assert(vim.lsp.get_client_by_id(ev.data.client_id))
         -- Keymaps for things to do with the LSP server
-        if client:supports_method('textDocument/definition') then
-            map('n', 'gd', vim.lsp.buf.definition, opts)
-        end
+        if client:supports_method('textDocument/definition') then map('n', 'gd', vim.lsp.buf.definition, opts) end
 
-        if client:supports_method('textDocument/declaration') then
-            map('n', 'gD', vim.lsp.buf.declaration, opts)
-        end
+        if client:supports_method('textDocument/declaration') then map('n', 'gD', vim.lsp.buf.declaration, opts) end
 
         if client:supports_method('textDocument/implementation') then
             map('n', 'gi', vim.lsp.buf.implementation, opts)
@@ -286,9 +304,7 @@ autocmd('LspAttach', {
             vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
         end
 
-        if client:supports_method('textDocument/references') then
-            map('n', 'gr', vim.lsp.buf.references, opts)
-        end
+        if client:supports_method('textDocument/references') then map('n', 'gr', vim.lsp.buf.references, opts) end
 
         if client:supports_method('textDocument/typeDefinition') then
             map('n', 'gy', vim.lsp.buf.type_definition, opts)
@@ -308,31 +324,27 @@ autocmd('LspAttach', {
 })
 
 -- Thanks to u/SergioVim in the r/neovim August monthly dotfile review thread..
-autocmd("BufReadPost", {
-    group = augroup("my.cursor", { clear = true }),
-    desc = "Restore cursor position when opening a file",
+autocmd('BufReadPost', {
+    group = augroup('my.cursor', { clear = true }),
+    desc = 'Restore cursor position when opening a file',
     callback = function(event)
-        local exclude = { "gitcommit", "COMMIT_EDITMSG" }
+        local exclude = { 'gitcommit', 'COMMIT_EDITMSG' }
         local ft = vim.bo[event.buf].filetype
 
-        if vim.tbl_contains(exclude, ft) or vim.b[event.buf].lazy_user_have_location then
-            return
-        end
+        if vim.tbl_contains(exclude, ft) or vim.b[event.buf].lazy_user_have_location then return end
 
         vim.b[event.buf].lazy_user_have_location = true
         local mark = vim.api.nvim_buf_get_mark(event.buf, '"')
         local lcount = vim.api.nvim_buf_line_count(event.buf)
 
-        if mark[1] > 0 and mark[1] <= lcount then
-            pcall(vim.api.nvim_win_set_cursor, 0, mark)
-        end
+        if mark[1] > 0 and mark[1] <= lcount then pcall(vim.api.nvim_win_set_cursor, 0, mark) end
     end,
 })
 
 autocmd('BufWritePost', {
     callback = function()
         require('lint').try_lint()
-        vim.diagnostic.setqflist({ open = false, })
+        vim.diagnostic.setqflist({ open = false })
     end,
 })
 
@@ -357,13 +369,10 @@ autocmd('FileType', {
 })
 
 autocmd('FileType', {
-    group = augroup('my.termed', { clear = true, })
-    pattern = 'termed',
-    callback = function()
-        vim.cmd('syntax match TermedBracket "^>"')
-        vim.cmd('highlight link TermedBracket DiagnosticWarn')
-        vim.opt_local.statusline = " %#DiagnosticWarn#   TERMINAL %* [Termed] %= Line: %l/%L "
-    end,
+    group = augroup('my.termed', { clear = true }),
+    pattern = { 'termed' },
+    callback = function() vim.opt_local.statusline = ' %#DiagnosticWarn#   TERMINAL %* [Termed] %= Line: %l/%L ' end,
 })
+
 ----- end of autocommands -----
 -- end of config --

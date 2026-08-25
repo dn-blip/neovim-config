@@ -42,26 +42,26 @@ local setup_oil = function()
         delete_to_trash = true,
         watch_for_changes = true,
         columns = {
-            "icons",
-            "permissions",
-            "size",
-            "mtime",
+            'icons',
+            'permissions',
+            'size',
+            'mtime',
         },
         keymaps = {
-            ["g?"] = { "actions.show_help", mode = 'n', },
-            ["h"] = { "actions.parent", mode = 'n', },
-            ["l"] = function()
-                local entry = require("oil").get_cursor_entry()
-                if entry and entry.type ~= "directory" then
+            ['g?'] = { 'actions.show_help', mode = 'n' },
+            ['h'] = { 'actions.parent', mode = 'n' },
+            ['l'] = function()
+                local entry = require('oil').get_cursor_entry()
+                if entry and entry.type ~= 'directory' then
                     return
                 else
                     require('oil').select()
                 end
             end,
-            ["<Tab>"] = "actions.preview",
-            ["<CR>"] = "actions.select",
-            ["q"] = "actions.close",
-            ["<C-c>"] = "actions.close",
+            ['<Tab>'] = 'actions.preview',
+            ['<CR>'] = 'actions.select',
+            ['q'] = 'actions.close',
+            ['<C-c>'] = 'actions.close',
         },
     })
 end
@@ -136,11 +136,11 @@ local setup_mini = function()
             { mode = { 'n', 'x' }, keys = '<Leader>' },
 
             -- `[` and `]` keys
-            { mode = 'n',          keys = '[' },
-            { mode = 'n',          keys = ']' },
+            { mode = 'n', keys = '[' },
+            { mode = 'n', keys = ']' },
 
             -- Built-in completion
-            { mode = 'i',          keys = '<C-x>' },
+            { mode = 'i', keys = '<C-x>' },
 
             -- `g` key
             { mode = { 'n', 'x' }, keys = 'g' },
@@ -154,7 +154,7 @@ local setup_mini = function()
             { mode = { 'i', 'c' }, keys = '<C-r>' },
 
             -- Window commands
-            { mode = 'n',          keys = '<C-w>' },
+            { mode = 'n', keys = '<C-w>' },
 
             -- `z` key
             { mode = { 'n', 'x' }, keys = 'z' },

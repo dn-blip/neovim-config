@@ -9,7 +9,10 @@ local autocmd = vim.api.nvim_create_autocmd
 local augroup = vim.api.nvim_create_augroup
 local opt = vim.opt
 local map = vim.keymap.set
+
 --- use <C-x><C-f> for file completion
+--- use <C-x><C-o> for omnicompletion triggers
+
 vim.pack.add({
     { src = gh('nvim-mini/mini.nvim') },
     { src = gh('Aejkatappaja/sora') },

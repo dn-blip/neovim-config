@@ -57,7 +57,7 @@ return {
         '--offset-encoding=utf-8',
         -- I don't quite like the way clangd formats C files by default,
         -- and I don't often have time to write a serious `.clang-format`.
-        '--fallback-style=None',
+        '-clang-format-style="{DisableFormat:true}"',
     },
 
     filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda' },

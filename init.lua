@@ -155,7 +155,7 @@ opt.matchpairs = { '(:)', '{:}', '[:]', '<:>' }
 --opt.tags = './tags;,tags;'
 
 opt.autoindent = true
-opt.noexpandtab = true
+opt.expandtab = false
 opt.shiftwidth = indent
 opt.smartindent = true
 opt.tabstop = indent
@@ -355,7 +355,7 @@ autocmd('FileType', {
     callback = function()
         vim.opt_local.tabstop = 8
         vim.opt_local.shiftwidth = 8
-        vim.opt_local.noexpandtab = true
+	vim.opt_local.expandtab = true
         vim.opt_local.cindent = true
     end,
 })
@@ -394,7 +394,7 @@ autocmd('FileType', {
     callback = function() map('n', 'dd', delete_qf_line, { buffer = true, silent = true }) end,
 })
 
-autocmd({'FileType', 'BufWinEnter'}, 
+autocmd({'FileType', 'BufWinEnter'},{ 
     pattern = '*',
     callback = function(args) 
         local is_valid = vim.api.nvim_buf_is_valid(args.buf)
@@ -404,7 +404,7 @@ autocmd({'FileType', 'BufWinEnter'},
             vim.fn.matchadd('Todo', alert_pattern, 10, -1, { window = 0 })
         end
     end,
-)
+})
 
 vim.api.nvim_create_user_command('Termed', function(opts)
     local prog = opts.fargs[1] or nil

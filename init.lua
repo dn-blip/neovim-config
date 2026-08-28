@@ -351,7 +351,7 @@ autocmd('BufWritePost', {
 })
 
 autocmd('FileType', {
-    pattern = { 'c', 'cpp', 'go', 'make' },
+    pattern = { 'c', 'go', 'make', 'dosbatch', 'ps1', 'sh' },
     callback = function()
         vim.opt_local.tabstop = 8
         vim.opt_local.shiftwidth = 8

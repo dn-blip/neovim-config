@@ -51,7 +51,7 @@ local make_terminal_buffer = function(default_prog)
     local render_prompt = function()
         vim.api.nvim_buf_clear_namespace(buf, prompt_ns_id, 0, -1)
         local total_lines = vim.api.nvim_buf_line_count(buf)
-        -- Places a virtual, un-editable '>' right at the front of the last active line
+        -- Places a virtual '>' in front of the last active line
         vim.api.nvim_buf_set_extmark(buf, prompt_ns_id, total_lines - 1, 0, {
             virt_text = { { '>', 'TermedVPrompt' } },
             virt_text_pos = 'overlay', -- Overlay hides column 0 visually without adding bytes
@@ -123,6 +123,7 @@ local make_terminal_buffer = function(default_prog)
 end
 
 vim.pack.add({
+    { src = gh('shaunsingh/nord.nvim') },
     { src = gh('nvim-mini/mini.nvim') },
     { src = gh('mason-org/mason.nvim') },
     { src = gh('WhoIsSethDaniel/mason-tool-installer.nvim') },
@@ -286,7 +287,7 @@ autocmd('TextYankPost', {
     group = augroup('YankHighlight', { clear = true, }),
 })
 
--- TODO: Find a better way to implement this..
+-- TODO: Find a better way to implement this, or replace everything with tags and a linter..
 autocmd('LspAttach', {
     group = augroup('my.lsp', { clear = true }),
     callback = function(ev)
@@ -405,28 +406,11 @@ autocmd({'FileType', 'BufWinEnter'},
     end,
 )
 
--- colorscheme: default with some orange & pink hints  --
-local nord_orange = '#d08770'
-local nord_pink = '#b48ead'
-
-local todo = '#d11d1d'
-vim.api.nvim_set_hl(0, 'Statement', { fg = nord_orange, bold = true })
-vim.api.nvim_set_hl(0, 'Keyword', { fg = nord_pink, bold = true })
-vim.api.nvim_set_hl(0, 'DiagnosticWarn', { fg = nord_pink, bold = true })
-vim.api.nvim_set_hl(0, 'DiagnosticError', { fg = nord_orange, bold = true })
-vim.api.nvim_set_hl(0, 'Search', { fg = '#2e3440', bg = nord_orange, bold = true })
-vim.api.nvim_set_hl(0, 'IncSearch', { fg = '#2e3440', bg = '#ebcb8b' })
-vim.api.nvim_set_hl(0, 'StorageClass', { fg = nord_pink, bold = true })
-vim.api.nvim_set_hl(0, 'TypeQualifier', { fg = nord_pink, bold = true })
-vim.api.nvim_set_hl(0, 'Todo', { fg = todo, bold = true, italic = true })
-
-vim.api.nvim_set_hl(0, 'LeapMatch', { fg = nord_pink, bold = true, underline = true })
-vim.api.nvim_set_hl(0, 'LeapLabelPrimary', { fg = '#2e3440', bg = nord_pink, bold = true })
-vim.api.nvim_set_hl(0, 'TermedVPrompt', { fg = nord_orange, bold = true })
-
 vim.api.nvim_create_user_command('Termed', function(opts)
     local prog = opts.fargs[1] or nil
     make_terminal_buffer(prog)
 end, { nargs = '?', desc = 'Open an empty buffer you can use like a terminal into.' })
+
+vim.cmd('colorscheme nord')
 
 -- end of my config! --

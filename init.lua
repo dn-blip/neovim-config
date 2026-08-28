@@ -29,7 +29,7 @@ local make_terminal_buffer = function(default_prog)
         vim.api.nvim_buf_clear_namespace(buf, prompt_ns_id, 0, -1)
         local total_lines = vim.api.nvim_buf_line_count(buf)
         -- Places a virtual, un-editable '>' right at the front of the last active line
-        vim.api.nvim_buf_set_extmark(buf, ns_id, total_lines - 1, 0, {
+        vim.api.nvim_buf_set_extmark(buf, prompt_ns_id, total_lines - 1, 0, {
             virt_text = { { '>', 'TermedVPrompt' } },
             virt_text_pos = 'overlay', -- Overlay hides column 0 visually without adding bytes
         })
@@ -158,7 +158,6 @@ opt.updatetime = 100
 
 vim.cmd([[filetype plugin indent on]])
 
-
 map('i', 'jj', '<ESC>')
 
 map('n', '<leader>w', '<cmd>w<CR>', { desc = 'save current buffer.' })
@@ -170,14 +169,12 @@ map('n', '<leader>k', '<C-w>k', { desc = 'switch window up.' })
 map('n', '<leader>j', '<C-w>j', { desc = 'switch window down.' })
 
 map('n', '<leader>qf', '<cmd>copen<CR>', { desc = 'Open [q]uick[f]ix list.' })
-map('n', '<leader>qfc', '<cmd>cclose<CR>', { desc = '[q]uick[f]ix list: [c]lose.' })
+map('n', '<leader>qc', '<cmd>cclose<CR>', { desc = '[q]uickfix list: [c]lose.' })
 
 map({ 'n', 'i', 'v' }, '<Up>', '<nop>')
 map({ 'n', 'i', 'v' }, '<Down>', '<nop>')
 map({ 'n', 'i', 'v' }, '<Left>', '<nop>')
 map({ 'n', 'i', 'v' }, '<Right>', '<nop>')
-
-map('n', '<leader>pb', function() require('mini.pick').builtin.buffers() end, { desc = '[p]ick [b]uffers (mini.nvim)' })
 
 map(
     'n',
@@ -186,14 +183,11 @@ map(
     { desc = '[p]ick [h]elp menu entries (mini.nvim)' }
 )
 
-map('n', '<leader>?', function() require('which-key').show({ global = true }) end)
 map({ 'n', 'v' }, '<leader>f', '<cmd>Oil<cr>', { desc = 'Open oil.nvim' })
 map({ 'n', 'x', 'o' }, 's', '<Plug>(leap)', { desc = 'leap search local' })
 map('n', 'S', '<Plug>(leap-from-window)', { desc = 'leap in other window' })
 
-
 require('plugins').setup()
-
 
 local getmode = function()
     local mode_table = {
@@ -259,7 +253,6 @@ autocmd('User', {
 
 vim.opt.winbar = '%{%v:lua.mywinbar()%}'
 vim.opt.statusline = '%!v:lua.mystatusline()'
-
 
 -- Highlight yanked text
 local highlight_group = augroup('YankHighlight', { clear = true })
@@ -358,21 +351,28 @@ autocmd('FileType', {
     callback = function() vim.opt_local.statusline = ' %#DiagnosticWarn#   TERMED %= Line: %l/%L ' end,
 })
 
+local delete_qf_line = function()
+    local qf = vim.fn.getqflist()
+
+    -- remove and update list
+    table.remove(qf, vim.fn.line('.'))
+
+    vim.fn.setqflist(qf, 'r')
+
+    vim.fn.cmd('copen')
+    local total_lines = #qf
+    local target_line = math.min(vim.fn.line('.'), total_lines)
+    if target_line > 0 then vim.api.nvim_win_set_cursor(0, { target_line, 0 }) end
+end
+
 autocmd('FileType', {
     pattern = 'qf',
-    callback = function()
-        map('n', 'dd', function() 
-            local qf = vim.fn.getqflist()
-            table.remove(qf, vim.fn.getline('.')
-            vim.fn.setqflist(qf, 'r') end, 
-        { buffer = true, silent = true, })
-    end,
+    callback = function() map('n', 'dd', delete_qf_line, { buffer = true, silent = true }) end,
 })
-
 
 -- colorscheme: default with some orange & pink hints  --
 local nord_orange = '#d08770'
-local nord_pink   = '#b48ead'
+local nord_pink = '#b48ead'
 
 vim.api.nvim_set_hl(0, 'Statement', { fg = nord_orange, bold = true })
 vim.api.nvim_set_hl(0, 'Keyword', { fg = nord_orange, bold = true })
@@ -388,10 +388,9 @@ vim.api.nvim_set_hl(0, 'LeapMatch', { fg = nord_pink, bold = true, underline = t
 vim.api.nvim_set_hl(0, 'LeapLabelPrimary', { fg = '#2e3440', bg = nord_pink, bold = true })
 vim.api.nvim_set_hl(0, 'TermedVPrompt', { fg = nord_orange, bold = true })
 
-vim.api.nvim_create_user_command('Termed', function(opts) 
-        local prog = opts.fargs[1] or nil
-        make_terminal_buffer(prog)
-    end, 
-    { nargs = '?', desc = 'Open an empty buffer you can use like a terminal into.' })
+vim.api.nvim_create_user_command('Termed', function(opts)
+    local prog = opts.fargs[1] or nil
+    make_terminal_buffer(prog)
+end, { nargs = '?', desc = 'Open an empty buffer you can use like a terminal into.' })
 
 -- end of my config! --

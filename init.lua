@@ -10,6 +10,29 @@ local augroup = vim.api.nvim_create_augroup
 local opt = vim.opt
 local map = vim.keymap.set
 
+--- use <C-x><C-f> for file completion
+--- use <C-x><C-o> for omnicompletion triggers
+--- use <C-]> for definition under cursor
+-- use <C-t> for going back one level in history (Back button)
+-- <g-C-}> for showing an interactive selection menu if a tag is duplicated
+-- ':tags' for showing a history stack of our tag journey
+
+--- TODO: Make this check for already-generated ctags files and append with -a.
+local maketags = function()
+    -- CTags is basically LSP but no 'S' or 'P'.
+    if vim.fn.executable('ctags') ~= 1 then
+        vim.notify('ctags is either not installed, or not in $PATH.', vim.log.levels.INFO)
+        return
+    else
+        vim.fn.jobstart({ 'ctags', '-R', '.', }, {
+            detach = true,
+            on_exit = function(_, code) 
+                if code ~= 0 then vim.notify('ctags failed for some reason', vim.log.levels.INFO) end
+            end,
+        })
+    end
+end
+
 --- utility: terminal buffer ---
 local make_terminal_buffer = function(default_prog)
     local buf = vim.api.nvim_create_buf(true, true)
@@ -99,9 +122,6 @@ local make_terminal_buffer = function(default_prog)
     map('n', '<CR>', send_current_line, { buffer = buf, noremap = true, silent = true })
 end
 
---- use <C-x><C-f> for file completion
---- use <C-x><C-o> for omnicompletion triggers
-
 vim.pack.add({
     { src = gh('nvim-mini/mini.nvim') },
     { src = gh('mason-org/mason.nvim') },
@@ -123,14 +143,18 @@ vim.o.wildmode = 'longest:full,full'
 -- Configures the visual presentation of the completion menu
 vim.o.wildoptions = 'pum'
 
+local indent = 4
+
 opt.clipboard:append('unnamedplus')
 
 opt.encoding = 'utf-8'
 opt.matchpairs = { '(:)', '{:}', '[:]', '<:>' }
 
-local indent = 4
+-- first search in the current directory, then into parent folders recursively.
+--opt.tags = './tags;,tags;'
+
 opt.autoindent = true
-opt.expandtab = true
+opt.noexpandtab = true
 opt.shiftwidth = indent
 opt.smartindent = true
 opt.tabstop = indent
@@ -256,11 +280,10 @@ opt.winbar = '%{%v:lua.mywinbar()%}'
 opt.statusline = '%!v:lua.mystatusline()'
 
 -- Highlight yanked text
-local highlight_group = augroup('YankHighlight', { clear = true })
 autocmd('TextYankPost', {
     pattern = '*',
     callback = function() vim.hl.on_yank({ timeout = 170 }) end,
-    group = highlight_group,
+    group = augroup('YankHighlight', { clear = true, }),
 })
 
 -- TODO: Find a better way to implement this..
@@ -331,8 +354,7 @@ autocmd('FileType', {
     callback = function()
         vim.opt_local.tabstop = 8
         vim.opt_local.shiftwidth = 8
-        vim.opt_local.softtabstop = 8
-        --vim.opt_local.expandtab = true
+        vim.opt_local.noexpandtab = true
         vim.opt_local.cindent = true
     end,
 })
@@ -371,20 +393,32 @@ autocmd('FileType', {
     callback = function() map('n', 'dd', delete_qf_line, { buffer = true, silent = true }) end,
 })
 
+autocmd({'FileType', 'BufWinEnter'}, 
+    pattern = '*',
+    callback = function(args) 
+        local is_valid = vim.api.nvim_buf_is_valid(args.buf)
+        if not is_valid then return
+        else
+            local alert_pattern = [[\v<(TODO|BUG|HACK|FIXME|XXX|NOTE):?]]
+            vim.fn.matchadd('Todo', alert_pattern, 10, -1, { window = 0 })
+        end
+    end,
+)
+
 -- colorscheme: default with some orange & pink hints  --
 local nord_orange = '#d08770'
 local nord_pink = '#b48ead'
 
+local todo = '#d11d1d'
 vim.api.nvim_set_hl(0, 'Statement', { fg = nord_orange, bold = true })
 vim.api.nvim_set_hl(0, 'Keyword', { fg = nord_pink, bold = true })
 vim.api.nvim_set_hl(0, 'DiagnosticWarn', { fg = nord_pink, bold = true })
 vim.api.nvim_set_hl(0, 'DiagnosticError', { fg = nord_orange, bold = true })
 vim.api.nvim_set_hl(0, 'Search', { fg = '#2e3440', bg = nord_orange, bold = true })
 vim.api.nvim_set_hl(0, 'IncSearch', { fg = '#2e3440', bg = '#ebcb8b' })
-
-vim.api.nvim_set_hl(0, 'CustomModifierPink', { fg = nord_pink, bold = true })
-vim.api.nvim_set_hl(0, 'StorageClass', { link = 'CustomModifierPink' })
-vim.api.nvim_set_hl(0, 'TypeQualifier', { link = 'CustomModifierPink' })
+vim.api.nvim_set_hl(0, 'StorageClass', { fg = nord_pink, bold = true })
+vim.api.nvim_set_hl(0, 'TypeQualifier', { fg = nord_pink, bold = true })
+vim.api.nvim_set_hl(0, 'Todo', { fg = todo, bold = true, italic = true })
 
 vim.api.nvim_set_hl(0, 'LeapMatch', { fg = nord_pink, bold = true, underline = true })
 vim.api.nvim_set_hl(0, 'LeapLabelPrimary', { fg = '#2e3440', bg = nord_pink, bold = true })

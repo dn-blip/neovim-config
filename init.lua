@@ -116,7 +116,7 @@ vim.pack.add({
 ----- options -----
 vim.o.winborder = 'single'
 vim.o.pumborder = 'single'
-vim.o.complete = '.,w,b,o'
+vim.o.complete = '.,w,b,o,u,t'
 vim.o.completeopt = 'fuzzy,menuone,noselect'
 -- Defines how completion behaves when you press <Tab>
 vim.o.wildmode = 'longest:full,full'

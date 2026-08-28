@@ -23,6 +23,17 @@ local make_terminal_buffer = function(default_prog)
 
     local job_id
     local last_sent_cmd = ''
+    local prompt_ns_id = vim.api.nvim_create_namespace('TermedPrompt')
+
+    local render_prompt = function()
+        vim.api.nvim_buf_clear_namespace(buf, prompt_ns_id, 0, -1)
+        local total_lines = vim.api.nvim_buf_line_count(buf)
+        -- Places a virtual, un-editable '>' right at the front of the last active line
+        vim.api.nvim_buf_set_extmark(buf, ns_id, total_lines - 1, 0, {
+            virt_text = { { '>', 'TermedVPrompt' } },
+            virt_text_pos = 'overlay', -- Overlay hides column 0 visually without adding bytes
+        })
+    end
 
     local get_stdout = function(_, data, _)
         if data then
@@ -30,15 +41,13 @@ local make_terminal_buffer = function(default_prog)
             for _, line in ipairs(data) do
                 -- carriage return cleanup
                 line = line:gsub('\r', '')
-
                 -- strip whitespace
                 local clean_line = line:gsub('%s*$', '')
-
                 if line ~= '' then
+                    -- I have no clue how this line works, it's AI-generated.
                     local is_prompt = line:match('^%a:[\\%w%s%p]+>$')
                         or line:match('^Microsoft Windows')
                         or line:match('^%s*P%s*S%s+.*>$')
-
                     -- HACK: Check if what we sent came back to us
                     local is_echo = (clean_line == last_sent_cmd) or (clean_line == '@echo off')
                     if not is_prompt and not is_echo then
@@ -53,6 +62,7 @@ local make_terminal_buffer = function(default_prog)
                     local total_lines = vim.api.nvim_buf_line_count(buf)
                     vim.api.nvim_win_set_cursor(0, { total_lines, 0 })
                 end)
+                render_prompt()
             end
         end
     end
@@ -61,18 +71,17 @@ local make_terminal_buffer = function(default_prog)
         vim.api.nvim_buf_set_lines(buf, -1, -1, false, { '' })
         local total_lines = vim.api.nvim_buf_line_count(buf)
         vim.api.nvim_win_set_cursor(0, { total_lines, 0 })
+        render_prompt()
     end
 
     local send_current_line = function()
         local current_line = vim.api.nvim_get_current_line()
-
         last_sent_cmd = current_line:gsub('%s*$', '')
-
         vim.api.nvim_chan_send(job_id, current_line .. '\n')
-
         vim.schedule(spawn_line)
     end
 
+    local default_shell = vim.fn.has('win32') == 1 and 'cmd.exe' or os.getenv('SHELL')
     local prog = default_prog or 'cmd.exe'
     local spawn_cmd = { prog }
 
@@ -85,7 +94,8 @@ local make_terminal_buffer = function(default_prog)
     })
 
     if prog == 'cmd.exe' then vim.api.nvim_chan_send(job_id, '@echo off\n') end
-
+    -- initial rendering
+    render_prompt()
     map('n', '<CR>', send_current_line, { buffer = buf, noremap = true, silent = true })
 end
 
@@ -147,9 +157,8 @@ opt.ttimeoutlen = 10
 opt.updatetime = 100
 
 vim.cmd([[filetype plugin indent on]])
------ end of options -----
 
------ key mappings -----
+
 map('i', 'jj', '<ESC>')
 
 map('n', '<leader>w', '<cmd>w<CR>', { desc = 'save current buffer.' })
@@ -160,9 +169,7 @@ map('n', '<leader>l', '<C-w>l', { desc = 'switch window right.' })
 map('n', '<leader>k', '<C-w>k', { desc = 'switch window up.' })
 map('n', '<leader>j', '<C-w>j', { desc = 'switch window down.' })
 
-map('n', '<leader>qfo', '<cmd>copen<CR>', { desc = 'Open [q]uick[f]ix list.' })
-map('n', '<leader>qfn', '<cmd>cnext<CR>', { desc = '[q]uick[f]ix list: [n]ext item.' })
-map('n', '<leader>qfp', '<cmd>cprev<CR>', { desc = '[q]uick[f]ix list: go to [p]revious' })
+map('n', '<leader>qf', '<cmd>copen<CR>', { desc = 'Open [q]uick[f]ix list.' })
 map('n', '<leader>qfc', '<cmd>cclose<CR>', { desc = '[q]uick[f]ix list: [c]lose.' })
 
 map({ 'n', 'i', 'v' }, '<Up>', '<nop>')
@@ -183,12 +190,11 @@ map('n', '<leader>?', function() require('which-key').show({ global = true }) en
 map({ 'n', 'v' }, '<leader>f', '<cmd>Oil<cr>', { desc = 'Open oil.nvim' })
 map({ 'n', 'x', 'o' }, 's', '<Plug>(leap)', { desc = 'leap search local' })
 map('n', 'S', '<Plug>(leap-from-window)', { desc = 'leap in other window' })
------ end of key mappings -----
+
 
 require('plugins').setup()
 
---- statusline and winbar---
---- stored seperately in case I switch from mini.git
+
 local getmode = function()
     local mode_table = {
         ['n'] = 'NORMAL',
@@ -253,30 +259,8 @@ autocmd('User', {
 
 vim.opt.winbar = '%{%v:lua.mywinbar()%}'
 vim.opt.statusline = '%!v:lua.mystatusline()'
---- end of statusline and winbar ---
 
--- colorscheme: default with some orange  --
-local orange = '#FF8700'
-vim.api.nvim_set_hl(0, 'Search', { fg = '#000000', bg = orange, bold = true })
-vim.api.nvim_set_hl(0, 'IncSearch', { fg = '#000000', bg = '#FFB366' })
-vim.api.nvim_set_hl(0, 'LeapMatch', { fg = orange, bold = true, underline = true })
-vim.api.nvim_set_hl(0, 'LeapLabelPrimary', { fg = '#000000', bg = orange, bold = true })
-vim.api.nvim_set_hl(0, 'Statement', { fg = orange, bold = true })
-vim.api.nvim_set_hl(0, 'Keyword', { fg = orange, bold = true })
-vim.api.nvim_set_hl(0, 'DiagnosticWarn', { fg = orange, bold = true })
 
--- end of colorscheme --
-
--- user commands --
-vim.api.nvim_create_user_command(
-    'Termed',
-    function(opts) make_terminal_buffer(opts.args) end,
-    { nargs = 1, desc = 'Opens up an interactive terminal scratchpad.' }
-)
-
--- end of user commands --
-
------ autocommands -----
 -- Highlight yanked text
 local highlight_group = augroup('YankHighlight', { clear = true })
 autocmd('TextYankPost', {
@@ -354,7 +338,7 @@ autocmd('FileType', {
         vim.opt_local.tabstop = 8
         vim.opt_local.shiftwidth = 8
         vim.opt_local.softtabstop = 8
-        vim.opt_local.expandtab = true
+        --vim.opt_local.expandtab = true
         vim.opt_local.cindent = true
     end,
 })
@@ -371,8 +355,43 @@ autocmd('FileType', {
 autocmd('FileType', {
     group = augroup('my.termed', { clear = true }),
     pattern = { 'termed' },
-    callback = function() vim.opt_local.statusline = ' %#DiagnosticWarn#   TERMINAL %* [Termed] %= Line: %l/%L ' end,
+    callback = function() vim.opt_local.statusline = ' %#DiagnosticWarn#   TERMED %= Line: %l/%L ' end,
 })
 
------ end of autocommands -----
--- end of config --
+autocmd('FileType', {
+    pattern = 'qf',
+    callback = function()
+        map('n', 'dd', function() 
+            local qf = vim.fn.getqflist()
+            table.remove(qf, vim.fn.getline('.')
+            vim.fn.setqflist(qf, 'r') end, 
+        { buffer = true, silent = true, })
+    end,
+})
+
+
+-- colorscheme: default with some orange & pink hints  --
+local nord_orange = '#d08770'
+local nord_pink   = '#b48ead'
+
+vim.api.nvim_set_hl(0, 'Statement', { fg = nord_orange, bold = true })
+vim.api.nvim_set_hl(0, 'Keyword', { fg = nord_orange, bold = true })
+vim.api.nvim_set_hl(0, 'DiagnosticWarn', { fg = nord_orange, bold = true })
+vim.api.nvim_set_hl(0, 'Search', { fg = '#2e3440', bg = nord_orange, bold = true })
+vim.api.nvim_set_hl(0, 'IncSearch', { fg = '#2e3440', bg = '#ebcb8b' })
+
+vim.api.nvim_set_hl(0, 'CustomModifierPink', { fg = nord_pink, bold = true })
+vim.api.nvim_set_hl(0, 'StorageClass', { link = 'CustomModifierPink' })
+vim.api.nvim_set_hl(0, 'TypeQualifier', { link = 'CustomModifierPink' })
+
+vim.api.nvim_set_hl(0, 'LeapMatch', { fg = nord_pink, bold = true, underline = true })
+vim.api.nvim_set_hl(0, 'LeapLabelPrimary', { fg = '#2e3440', bg = nord_pink, bold = true })
+vim.api.nvim_set_hl(0, 'TermedVPrompt', { fg = nord_orange, bold = true })
+
+vim.api.nvim_create_user_command('Termed', function(opts) 
+        local prog = opts.fargs[1] or nil
+        make_terminal_buffer(prog)
+    end, 
+    { nargs = '?', desc = 'Open an empty buffer you can use like a terminal into.' })
+
+-- end of my config! --

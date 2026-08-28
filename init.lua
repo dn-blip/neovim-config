@@ -375,8 +375,9 @@ local nord_orange = '#d08770'
 local nord_pink = '#b48ead'
 
 vim.api.nvim_set_hl(0, 'Statement', { fg = nord_orange, bold = true })
-vim.api.nvim_set_hl(0, 'Keyword', { fg = nord_orange, bold = true })
-vim.api.nvim_set_hl(0, 'DiagnosticWarn', { fg = nord_orange, bold = true })
+vim.api.nvim_set_hl(0, 'Keyword', { fg = nord_pink, bold = true })
+vim.api.nvim_set_hl(0, 'DiagnosticWarn', { fg = nord_pink, bold = true })
+vim.api.nvim_set_hl(0, 'DiagnosticError', { fg = nord_orange, bold = true })
 vim.api.nvim_set_hl(0, 'Search', { fg = '#2e3440', bg = nord_orange, bold = true })
 vim.api.nvim_set_hl(0, 'IncSearch', { fg = '#2e3440', bg = '#ebcb8b' })
 

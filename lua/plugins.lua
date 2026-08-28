@@ -96,6 +96,8 @@ local setup_codetools = function()
     require('conform').setup({
         formatters_by_ft = {
             lua = { 'selene' },
+            c = { 'clang-format' },
+            cpp = { 'clang-format' },
             css = { 'csskit' },
             go = { 'gofmt' },
             python = { 'ruff' },

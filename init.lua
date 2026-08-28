@@ -143,6 +143,7 @@ opt.relativenumber = true
 
 opt.cursorline = true
 opt.termguicolors = true
+opt.guicursor = 'a:block'
 opt.showmode = false
 opt.hlsearch = false
 opt.colorcolumn = '80,100'
@@ -251,8 +252,8 @@ autocmd('User', {
     command = 'redrawstatus',
 })
 
-vim.opt.winbar = '%{%v:lua.mywinbar()%}'
-vim.opt.statusline = '%!v:lua.mystatusline()'
+opt.winbar = '%{%v:lua.mywinbar()%}'
+opt.statusline = '%!v:lua.mystatusline()'
 
 -- Highlight yanked text
 local highlight_group = augroup('YankHighlight', { clear = true })

@@ -24,9 +24,9 @@ local maketags = function()
         vim.notify('ctags is either not installed, or not in $PATH.', vim.log.levels.INFO)
         return
     else
-        vim.fn.jobstart({ 'ctags', '-R', '.', }, {
+        vim.fn.jobstart({ 'ctags', '-R', '.' }, {
             detach = true,
-            on_exit = function(_, code) 
+            on_exit = function(_, code)
                 if code ~= 0 then vim.notify('ctags failed for some reason', vim.log.levels.INFO) end
             end,
         })
@@ -104,7 +104,6 @@ local make_terminal_buffer = function(default_prog)
         vim.schedule(spawn_line)
     end
 
-    local default_shell = vim.fn.has('win32') == 1 and 'cmd.exe' or os.getenv('SHELL')
     local prog = default_prog or 'cmd.exe'
     local spawn_cmd = { prog }
 
@@ -159,6 +158,7 @@ opt.expandtab = false
 opt.shiftwidth = indent
 opt.smartindent = true
 opt.tabstop = indent
+opt.swapfile = false
 
 opt.foldlevelstart = 99
 opt.foldmethod = 'syntax'
@@ -284,7 +284,7 @@ opt.statusline = '%!v:lua.mystatusline()'
 autocmd('TextYankPost', {
     pattern = '*',
     callback = function() vim.hl.on_yank({ timeout = 170 }) end,
-    group = augroup('YankHighlight', { clear = true, }),
+    group = augroup('YankHighlight', { clear = true }),
 })
 
 -- TODO: Find a better way to implement this, or replace everything with tags and a linter..
@@ -355,7 +355,7 @@ autocmd('FileType', {
     callback = function()
         vim.opt_local.tabstop = 8
         vim.opt_local.shiftwidth = 8
-	vim.opt_local.expandtab = true
+        vim.opt_local.expandtab = true
         vim.opt_local.cindent = true
     end,
 })
@@ -394,11 +394,12 @@ autocmd('FileType', {
     callback = function() map('n', 'dd', delete_qf_line, { buffer = true, silent = true }) end,
 })
 
-autocmd({'FileType', 'BufWinEnter'},{ 
+autocmd({ 'FileType', 'BufWinEnter' }, {
     pattern = '*',
-    callback = function(args) 
+    callback = function(args)
         local is_valid = vim.api.nvim_buf_is_valid(args.buf)
-        if not is_valid then return
+        if not is_valid then
+            return
         else
             local alert_pattern = [[\v<(TODO|BUG|HACK|FIXME|XXX|NOTE):?]]
             vim.fn.matchadd('Todo', alert_pattern, 10, -1, { window = 0 })
@@ -412,5 +413,7 @@ vim.api.nvim_create_user_command('Termed', function(opts)
 end, { nargs = '?', desc = 'Open an empty buffer you can use like a terminal into.' })
 
 vim.cmd('colorscheme nord')
+vim.g.nord_disable_background = true
+require('nord').set()
 
 -- end of my config! --

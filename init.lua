@@ -40,7 +40,6 @@ vim.pack.add({
     { src = gh('shaunsingh/nord.nvim') },
     { src = gh('nvim-mini/mini.nvim') },
     { src = gh('mason-org/mason.nvim') },
-    { src = gh('WhoIsSethDaniel/mason-tool-installer.nvim') },
     { src = gh('mfussenegger/nvim-lint') },
     { src = gh('stevearc/oil.nvim') },
     { src = gh('stevearc/conform.nvim') },

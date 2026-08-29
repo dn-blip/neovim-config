@@ -20,16 +20,21 @@ local setup_mason = function()
     local check_installed_tools = function(tools)
         -- update registry
         local registry = require('mason-registry')
-        registry.update(function(success, _) if not success then return end end)
-
-        for _, tool in ipairs(tools) do
-            local package = registry.get_package(tool)
-            if not package:is_installed() then
-                package:install()
-            else
-                print(string.format('Package %s already installed!', package))
+        registry.update(function(success, err) 
+            if not success then
+                vim.notify(
+                    'Failed to update Mason registry: ' .. tostring(err) ,vim.log.levels.WARN)
+                return 
             end
-        end
+            for _, tool in ipairs(tools) do
+                local package = registry.get_package(tool)
+                if not package:is_installed() then
+                    package:install()
+                else
+                    print(string.format('Package %s already installed!', tool))
+                end
+            end
+        end)
     end
 
     vim.schedule(function() check_installed_tools(ensure_installed) end)

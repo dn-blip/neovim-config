@@ -13,9 +13,12 @@ local map = vim.keymap.set
 --- use <C-x><C-f> for file completion
 --- use <C-x><C-o> for omnicompletion triggers
 --- use <C-]> for definition under cursor
+--- use <Tab> in the cmdline for completion
 -- use <C-t> for going back one level in history (Back button)
 -- <g-C-}> for showing an interactive selection menu if a tag is duplicated
 -- ':tags' for showing a history stack of our tag journey
+
+-- ':pack update' for updating plugins,
 
 --- TODO: Make this check for already-generated ctags files and append with -a.
 local maketags = function()
@@ -33,94 +36,6 @@ local maketags = function()
     end
 end
 
---- utility: terminal buffer ---
-local make_terminal_buffer = function(default_prog)
-    local buf = vim.api.nvim_create_buf(true, true)
-    vim.api.nvim_buf_set_name(buf, 'Termed')
-    vim.api.nvim_win_set_buf(0, buf)
-
-    -- cursor at the absolute beginning
-    vim.api.nvim_buf_set_option(buf, 'filetype', 'termed')
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { '' })
-    vim.api.nvim_win_set_cursor(0, { 1, 0 })
-
-    local job_id
-    local last_sent_cmd = ''
-    local prompt_ns_id = vim.api.nvim_create_namespace('TermedPrompt')
-
-    local render_prompt = function()
-        vim.api.nvim_buf_clear_namespace(buf, prompt_ns_id, 0, -1)
-        local total_lines = vim.api.nvim_buf_line_count(buf)
-        -- Places a virtual '>' in front of the last active line
-        vim.api.nvim_buf_set_extmark(buf, prompt_ns_id, total_lines - 1, 0, {
-            virt_text = { { '>', 'TermedVPrompt' } },
-            virt_text_pos = 'overlay', -- Overlay hides column 0 visually without adding bytes
-        })
-    end
-
-    local get_stdout = function(_, data, _)
-        if data then
-            local lines_added = false
-            for _, line in ipairs(data) do
-                -- carriage return cleanup
-                line = line:gsub('\r', '')
-                -- strip whitespace
-                local clean_line = line:gsub('%s*$', '')
-                if line ~= '' then
-                    -- I have no clue how this line works, it's AI-generated.
-                    local is_prompt = line:match('^%a:[\\%w%s%p]+>$')
-                        or line:match('^Microsoft Windows')
-                        or line:match('^%s*P%s*S%s+.*>$')
-                    -- HACK: Check if what we sent came back to us
-                    local is_echo = (clean_line == last_sent_cmd) or (clean_line == '@echo off')
-                    if not is_prompt and not is_echo then
-                        vim.api.nvim_buf_set_lines(buf, -1, -1, false, { line })
-                        lines_added = true
-                    end
-                end
-            end
-
-            if lines_added then
-                vim.schedule(function()
-                    local total_lines = vim.api.nvim_buf_line_count(buf)
-                    vim.api.nvim_win_set_cursor(0, { total_lines, 0 })
-                end)
-                render_prompt()
-            end
-        end
-    end
-
-    local spawn_line = function()
-        vim.api.nvim_buf_set_lines(buf, -1, -1, false, { '' })
-        local total_lines = vim.api.nvim_buf_line_count(buf)
-        vim.api.nvim_win_set_cursor(0, { total_lines, 0 })
-        render_prompt()
-    end
-
-    local send_current_line = function()
-        local current_line = vim.api.nvim_get_current_line()
-        last_sent_cmd = current_line:gsub('%s*$', '')
-        vim.api.nvim_chan_send(job_id, current_line .. '\n')
-        vim.schedule(spawn_line)
-    end
-
-    local prog = default_prog or 'cmd.exe'
-    local spawn_cmd = { prog }
-
-    -- headless background arguments to prevent shell replication
-    if prog == 'powershell.exe' or prog == 'pwsh' then spawn_cmd = { prog, '-NoProfile', '-Command', '-' } end
-
-    job_id = vim.fn.jobstart(spawn_cmd, {
-        on_stdout = get_stdout,
-        stdout_buffered = false,
-    })
-
-    if prog == 'cmd.exe' then vim.api.nvim_chan_send(job_id, '@echo off\n') end
-    -- initial rendering
-    render_prompt()
-    map('n', '<CR>', send_current_line, { buffer = buf, noremap = true, silent = true })
-end
-
 vim.pack.add({
     { src = gh('shaunsingh/nord.nvim') },
     { src = gh('nvim-mini/mini.nvim') },
@@ -129,8 +44,7 @@ vim.pack.add({
     { src = gh('mfussenegger/nvim-lint') },
     { src = gh('stevearc/oil.nvim') },
     { src = gh('stevearc/conform.nvim') },
-    { src = cb('cryptomilk/nvim-pack-ui') },
-    { src = cb('andyg/leap.nvim') },
+    { src = gh('voldikss/vim-floaterm') },
 })
 
 ----- options -----
@@ -210,8 +124,6 @@ map(
 )
 
 map({ 'n', 'v' }, '<leader>f', '<cmd>Oil<cr>', { desc = 'Open oil.nvim' })
-map({ 'n', 'x', 'o' }, 's', '<Plug>(leap)', { desc = 'leap search local' })
-map('n', 'S', '<Plug>(leap-from-window)', { desc = 'leap in other window' })
 
 require('plugins').setup()
 
@@ -369,12 +281,6 @@ autocmd('FileType', {
     end,
 })
 
-autocmd('FileType', {
-    group = augroup('my.termed', { clear = true }),
-    pattern = { 'termed' },
-    callback = function() vim.opt_local.statusline = ' %#DiagnosticWarn#   TERMED %= Line: %l/%L ' end,
-})
-
 local delete_qf_line = function()
     local qf = vim.fn.getqflist()
 
@@ -406,11 +312,6 @@ autocmd({ 'FileType', 'BufWinEnter' }, {
         end
     end,
 })
-
-vim.api.nvim_create_user_command('Termed', function(opts)
-    local prog = opts.fargs[1] or nil
-    make_terminal_buffer(prog)
-end, { nargs = '?', desc = 'Open an empty buffer you can use like a terminal into.' })
 
 vim.cmd('colorscheme nord')
 vim.g.nord_disable_background = true

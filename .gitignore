@@ -13,3 +13,7 @@ tree-sitter-dl-lock.json
 
 
 ruff_cache/
+
+# Scrap files
+scrap.lua
+scrap/

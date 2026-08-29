@@ -1,7 +1,7 @@
 ---@diagnostic disable undefined-global
 local M = {}
 local setup_mason = function()
-    local ensure_installed_tools = {
+    local ensure_installed = {
         'stylua',
         'selene',
         'clangd',
@@ -14,26 +14,26 @@ local setup_mason = function()
 
     require('mason').setup()
 
-    local mti = require('mason-tool-installer')
-
-    mti.setup({
-        ensure_installed = ensure_installed_tools,
-        auto_update = true,
-        run_on_start = true,
-    })
-
     local mason_bin = vim.fn.stdpath('data') .. '/mason/bin'
     vim.env.PATH = mason_bin .. ':' .. vim.env.PATH
 
-    vim.lsp.enable({
-        'basedpyright',
-        'clangd',
-        'filepaths_ls',
-        'gofmt',
-        'gopls',
-        'lua_ls',
-        'superhtml',
-    })
+    local check_installed_tools = function(tools)
+        -- update registry
+        local registry = require('mason-registry')
+        registry.update(function(success, _) if not success then return end end)
+
+        for _, tool in ipairs(tools) do
+            local package = registry.get_package(tool)
+            if not package:is_installed() then
+                package:install()
+            else
+                print(string.format('Package %s already installed!', package))
+            end
+        end
+    end
+
+    vim.schedule(function() check_installed_tools(ensure_installed) end)
+    
 end
 
 local setup_oil = function()
@@ -115,6 +115,16 @@ local setup_codetools = function()
             timeout_ms = 500,
             lsp_format = 'fallback',
         },
+    })
+
+    vim.lsp.enable({
+        'basedpyright',
+        'clangd',
+        'filepaths_ls',
+        'gofmt',
+        'gopls',
+        'lua_ls',
+        'superhtml',
     })
 end
 

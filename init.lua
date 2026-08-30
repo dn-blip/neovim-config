@@ -15,7 +15,7 @@ local map = vim.keymap.set
 --- use <C-]> for definition under cursor
 --- use <Tab> in the cmdline for completion
 -- use <C-t> for going back one level in history (Back button)
--- <g-C-}> for showing an interactive selection menu if a tag is duplicated
+-- <gC-}> for showing an interactive selection menu if a tag is duplicated
 -- ':tags' for showing a history stack of our tag journey
 
 -- ':pack update' for updating plugins,
@@ -36,8 +36,10 @@ local maketags = function()
     end
 end
 
+
+
+-- All the stuff I'm not implementing myself. Pretty clean.
 vim.pack.add({
-    { src = gh('shaunsingh/nord.nvim') },
     { src = gh('nvim-mini/mini.nvim') },
     { src = gh('mason-org/mason.nvim') },
     { src = gh('mfussenegger/nvim-lint') },
@@ -97,6 +99,8 @@ opt.updatetime = 100
 
 vim.cmd([[filetype plugin indent on]])
 
+
+
 map('i', 'jj', '<ESC>')
 
 map('n', '<leader>w', '<cmd>w<CR>', { desc = 'save current buffer.' })
@@ -123,6 +127,8 @@ map(
 )
 
 map({ 'n', 'v' }, '<leader>f', '<cmd>Oil<cr>', { desc = 'Open oil.nvim' })
+
+
 
 require('plugins').setup()
 
@@ -181,6 +187,8 @@ function _G.mywinbar()
     if filename == '' then filename = '[no name]' end
     return filename .. modified .. '%='
 end
+
+
 
 autocmd('User', {
     pattern = 'MiniGitUpdated',
@@ -312,8 +320,21 @@ autocmd({ 'FileType', 'BufWinEnter' }, {
     end,
 })
 
-vim.cmd('colorscheme nord')
-vim.g.nord_disable_background = true
-require('nord').set()
+
+-- Default theme with Nord accents
+vim.cmd('colorscheme default')
+local orange = '#d08770'
+local pink   = '#b48ead'
+
+vim.api.nvim_set_hl(0, 'Statement', { fg = orange, bold = true })
+vim.api.nvim_set_hl(0, 'Keyword', { fg = orange, bold = true })
+vim.api.nvim_set_hl(0, 'DiagnosticWarn', { fg = orange, bold = true })
+vim.api.nvim_set_hl(0, 'Todo', { fg = '#2e3440', bg = orange, bold = true })
+vim.api.nvim_set_hl(0, 'Search', { fg = '#2e3440', bg = orange, bold = true })
+vim.api.nvim_set_hl(0, 'IncSearch', { fg = '#2e3440', bg = '#ebcb8b' })
+
+vim.api.nvim_set_hl(0, 'CustomModifierPink', { fg = pink, bold = true })
+vim.api.nvim_set_hl(0, 'StorageClass', { link = 'CustomModifierPink' })
+vim.api.nvim_set_hl(0, 'TypeQualifier', { link = 'CustomModifierPink' })
 
 -- end of my config! --
